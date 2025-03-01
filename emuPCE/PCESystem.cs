@@ -60,11 +60,11 @@ namespace emuPCE
             m_BankList[0xFF] = m_BUS;
         }
 
-        public void Update()
+        public void tick()
         {
-            m_Clock = m_BUS.Update();
+            m_Clock = m_BUS.tick();
             FPS = ppu.FramePerSec;
-            Step();
+            base.cycle();
         }
 
         public void FrameReady(IntPtr pixels)

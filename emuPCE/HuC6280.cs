@@ -395,7 +395,7 @@ namespace emuPCE
             m_AdvanceClock += 7;
         }
 
-        public void Step()
+        public void cycle()
         {
             while (m_Clock > 0)
             {

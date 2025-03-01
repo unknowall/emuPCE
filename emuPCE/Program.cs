@@ -29,8 +29,7 @@ namespace emuPCE
 
         public Program()
         {
-            SDL_Init(SDL_INIT_VIDEO);
-            SDL_Init(SDL_INIT_AUDIO);
+            SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
 
             m_Window = SDL_CreateWindow("PC Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1024, 768, SDL_WindowFlags.SDL_WINDOW_SHOWN);
             m_Renderer = SDL_CreateRenderer(m_Window, -1, SDL_RendererFlags.SDL_RENDERER_ACCELERATED | SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC);
@@ -121,28 +120,28 @@ namespace emuPCE
         {
             switch (key)
             {
-                case (int)SDL_Keycode.SDLK_UP:
+                case (int)SDL_Keycode.SDLK_w:
                     pce.KeyState(PCEKEY.UP, keyup);
                     break;
-                case (int)SDL_Keycode.SDLK_DOWN:
+                case (int)SDL_Keycode.SDLK_s:
                     pce.KeyState(PCEKEY.DOWN, keyup);
                     break;
-                case (int)SDL_Keycode.SDLK_RIGHT:
+                case (int)SDL_Keycode.SDLK_d:
                     pce.KeyState(PCEKEY.RIGHT, keyup);
                     break;
-                case (int)SDL_Keycode.SDLK_LEFT:
+                case (int)SDL_Keycode.SDLK_a:
                     pce.KeyState(PCEKEY.LEFT, keyup);
                     break;
-                case (int)SDL_Keycode.SDLK_x:
+                case (int)SDL_Keycode.SDLK_u:
                     pce.KeyState(PCEKEY.B, keyup);
                     break;
-                case (int)SDL_Keycode.SDLK_z:
+                case (int)SDL_Keycode.SDLK_i:
                     pce.KeyState(PCEKEY.A, keyup);
                     break;
-                case (int)SDL_Keycode.SDLK_RETURN:
+                case (int)SDL_Keycode.SDLK_1:
                     pce.KeyState(PCEKEY.START, keyup);
                     break;
-                case (int)SDL_Keycode.SDLK_TAB:
+                case (int)SDL_Keycode.SDLK_2:
                     pce.KeyState(PCEKEY.SELECT, keyup);
                     break;
             }
@@ -213,20 +212,9 @@ namespace emuPCE
                                     pce.LoadRom(ofn.FileName, false);
                                     pce.Reset();
                                 }
-                                Mute(mute);
+                                Mute(false);
                                 break;
                             case SDL_Keycode.SDLK_F2:
-                                Mute(true);
-                                ofn.Filter = "PC-Engine Bitswapped Roms (*.pce)|*.pce";
-                                ofn.Title = "Open PCE Rom";
-                                if (ofn.ShowDialog() != DialogResult.Cancel)
-                                {
-                                    pce.LoadRom(ofn.FileName, true);
-                                    pce.Reset();
-                                }
-                                Mute(mute);
-                                break;
-                            case SDL_Keycode.SDLK_F3:
                                 Mute(true);
                                 ofn.Filter = "PC-Engine CD (*.cue)|*.cue";
                                 ofn.Title = "Open PC Engine CD Image";
@@ -234,10 +222,7 @@ namespace emuPCE
                                 {
                                     pce.LoadCue(ofn.FileName);
                                 }
-                                Mute(mute);
-                                break;
-                            case SDL_Keycode.SDLK_F12:
-                                pce.Reset();
+                                Mute(false);
                                 break;
                             default:
                                 GameKey((int)e.key.keysym.sym, 0);
@@ -247,7 +232,7 @@ namespace emuPCE
 
                 }
                 if (pauseing) continue;
-                pce.Update();
+                pce.tick();
             }
         }
 

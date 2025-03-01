@@ -47,7 +47,7 @@ namespace emuPCE
             m_DeadClocks = 0;
         }
 
-        public int Update()
+        public int tick()
         {
             int cycles;
 
