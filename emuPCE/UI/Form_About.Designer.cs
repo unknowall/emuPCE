@@ -1,4 +1,4 @@
-﻿namespace emuPCE.UI
+﻿namespace ePceCD.UI
 {
     partial class FrmAbout
     {
@@ -43,7 +43,7 @@
             labver.Name = "labver";
             labver.Size = new System.Drawing.Size(150, 22);
             labver.TabIndex = 0;
-            labver.Text = "emuPCE Beta 0.0.2";
+            labver.Text = "ePceCD Beta 0.0.2";
             // 
             // label2
             // 
@@ -52,7 +52,7 @@
             label2.Name = "label2";
             label2.Size = new System.Drawing.Size(56, 17);
             label2.TabIndex = 1;
-            label2.Text = emuPCE.Properties.Resources.FrmAbout_InitializeComponent_维护者;
+            label2.Text = ePceCD.Properties.Resources.FrmAbout_InitializeComponent_维护者;
             // 
             // textBox1
             // 
@@ -70,7 +70,7 @@
             label3.Name = "label3";
             label3.Size = new System.Drawing.Size(350, 56);
             label3.TabIndex = 3;
-            label3.Text = $"{emuPCE.Properties.Resources.FrmAbout_InitializeComponent_read}\r\n\r\n{emuPCE.Properties.Resources.FrmAbout_InitializeComponent_read2}\r\n";
+            label3.Text = $"{ePceCD.Properties.Resources.FrmAbout_InitializeComponent_read}\r\n\r\n{ePceCD.Properties.Resources.FrmAbout_InitializeComponent_read2}\r\n";
             // 
             // linkLabel1
             // 
@@ -96,7 +96,7 @@
             MaximizeBox = false;
             Name = "FrmAbout";
             StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            Text = emuPCE.Properties.Resources.FrmAbout_InitializeComponent_关于;
+            Text = ePceCD.Properties.Resources.FrmAbout_InitializeComponent_关于;
             ResumeLayout(false);
             PerformLayout();
         }

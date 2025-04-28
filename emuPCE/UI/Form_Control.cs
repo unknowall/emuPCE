@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-using static emuPCE.Controller;
+using static ePceCD.Controller;
 using static SDL2.SDL;
 
-namespace emuPCE.UI
+namespace ePceCD.UI
 {
     public partial class FrmInput : Form
     {
@@ -82,8 +82,8 @@ namespace emuPCE.UI
             {
             { SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_A, PCEKEY.A },
             { SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_B, PCEKEY.B },
-            { SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_X, PCEKEY.A },
-            { SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_Y, PCEKEY.B },
+            //{ SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_X, PCEKEY.A },
+            //{ SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_Y, PCEKEY.B },
             { SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_BACK, PCEKEY.Select },
             { SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_START, PCEKEY.Start },
             { SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_UP, PCEKEY.DPadUp },

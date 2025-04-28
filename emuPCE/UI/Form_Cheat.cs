@@ -8,7 +8,7 @@ using System.Security.Policy;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace emuPCE.UI
+namespace ePceCD.UI
 {
     public partial class Form_Cheat : Form
     {
@@ -30,7 +30,7 @@ namespace emuPCE.UI
             }
             DiskID = id;
 
-            this.Text = $"  {DiskID}  {emuPCE.Properties.Resources.Form_Cheat_Form_Cheat_的金手指}";
+            this.Text = $"  {DiskID}  {ePceCD.Properties.Resources.Form_Cheat_Form_Cheat_的金手指}";
 
             btnload_Click(this, null);
 
@@ -40,7 +40,7 @@ namespace emuPCE.UI
 
         private void btnadd_Click(object sender, EventArgs e)
         {
-            var item = clb.Items.Add(emuPCE.Properties.Resources.Form_Cheat_btnadd_Click_新建);
+            var item = clb.Items.Add(ePceCD.Properties.Resources.Form_Cheat_btnadd_Click_新建);
             item.SubItems.Add("");
         }
 

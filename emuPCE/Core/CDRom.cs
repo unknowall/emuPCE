@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
-namespace emuPCE
+namespace ePceCD
 {
     public class CDRom
     {
@@ -68,29 +68,25 @@ namespace emuPCE
         // IRQ和状态管理
         public byte EnabledIrqs, ActiveIrqs, ResetRegValue;
         private bool bramLocked;
-        public SaveMemoryBank BRAM;
-        public RamBank[] RAMBanks { get; } = new RamBank[32];
+
         public List<CDTrack> tracks = new List<CDTrack>();
 
         public ADPCM _ADPCM;
         public AUDIOFADE _AUDIOFADE = new AUDIOFADE();
 
-        public CDRom()
+        [NonSerialized]
+        public BUS Bus;
+
+        public CDRom(BUS bus)
         {
             _ADPCM = new ADPCM(this);
 
-            for (int i = 0; i < 32; i++)
-                RAMBanks[i] = new RamBank();
+            Bus = bus;
         }
 
-        public SaveMemoryBank GetSaveMemory()
+        public CDRom()
         {
-            return BRAM;
-        }
 
-        public RamBank GetRam(int i)
-        {
-            return RAMBanks[i];
         }
 
         public bool IRQWaiting()
@@ -187,7 +183,7 @@ namespace emuPCE
             Console.WriteLine($"CDROM {filePath} BINARY LOADED");
             string savefile = Path.GetFileNameWithoutExtension(filePath);
 
-            BRAM = new SaveMemoryBank("./Save/"+ savefile);
+            Bus.BRAM = new SaveMemoryBank("./Save/"+ savefile);
         }
 
         private void ParseTrackCommand(string[] parts)
@@ -763,7 +759,7 @@ namespace emuPCE
 
                 case 0x07:
                     bramLocked = (value & 0x80) == 0;
-                    BRAM.WriteProtect(bramLocked);
+                    Bus.BRAM.WriteProtect(bramLocked);
                     break;
 
                 case 0x08: case 0x09: case 0x0A: case 0x0B: case 0x0C: case 0x0D: case 0x0E:

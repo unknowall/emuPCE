@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using System.Windows.Forms;
 
-namespace emuPCE.UI
+namespace ePceCD.UI
 {
     public partial class FrmAbout : Form
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using HexBoxControl;
 
-namespace emuPCE.UI
+namespace ePceCD.UI
 {
     public partial class Form_Mem : Form
     {
@@ -233,7 +233,7 @@ namespace emuPCE.UI
 
         private void updateml()
         {
-            labse.Text = $"{emuPCE.Properties.Resources.Form_Mem_updateml_搜索到} {SearchResults.Count} {emuPCE.Properties.Resources.Form_Mem_updateml_个地址只显示前500个}";
+            labse.Text = $"{ePceCD.Properties.Resources.Form_Mem_updateml_搜索到} {SearchResults.Count} {ePceCD.Properties.Resources.Form_Mem_updateml_个地址只显示前500个}";
             ml.Rows.Clear();
             for (int i = 0; i < SearchResults.Count; i++)
             {

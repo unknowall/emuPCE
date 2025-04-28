@@ -2,7 +2,7 @@
 using System.Numerics;
 using System.Threading.Tasks;
 
-namespace emuPCE
+namespace ePceCD
 {
     public enum ScaleMode
     {

@@ -4,7 +4,7 @@ using System.Windows.Forms;
 
 using DirectX.D2D1;
 
-namespace emuPCE.Render
+namespace ePceCD.Render
 {
     public class D2DRenderer : UserControl, IRenderer
     {

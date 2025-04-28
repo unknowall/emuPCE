@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 using static SDL2.SDL;
 
-namespace emuPCE.Render
+namespace ePceCD.Render
 {
     class SDL2Renderer : UserControl, IRenderer
     {

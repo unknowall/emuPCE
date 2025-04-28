@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Resources;
 using System.Windows.Forms;
 
-namespace emuPCE.Render
+namespace ePceCD.Render
 {
     public enum RenderMode
     {

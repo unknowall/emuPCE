@@ -2,7 +2,7 @@
 using System.IO;
 using System.Windows.Forms;
 
-namespace emuPCE.UI
+namespace ePceCD.UI
 {
     public partial class Form_Set : Form
     {
@@ -31,7 +31,7 @@ namespace emuPCE.UI
                     loadini(ini);
                 }
                 btndel.Visible = true;
-                this.Text = $" {id} {emuPCE.Properties.Resources.Form_Set_Form_Set_set}";
+                this.Text = $" {id} {ePceCD.Properties.Resources.Form_Set_Form_Set_set}";
             }
         }
 
@@ -111,6 +111,8 @@ namespace emuPCE.UI
                 ini.WriteInt("Audio", "Buffer", int.Parse(tbaudiobuffer.Text));
 
                 ini.WriteInt("OpenGL", "MSAA", cbmsaa.SelectedIndex);
+
+                ini.WriteInt("Main", "ScaleMode", cbscalemode.SelectedIndex);
 
                 ini.WriteInt("Main", "Console", cbconsole.Checked ? 1 : 0);
 

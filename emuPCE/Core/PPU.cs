@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Vulkan;
 
-namespace emuPCE
+namespace ePceCD
 {
     public enum DotClock : int
     {

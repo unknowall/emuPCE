@@ -11,7 +11,7 @@ using Vulkan.Win32;
 using static Khronos.Platform;
 using static Vulkan.VulkanNative;
 
-namespace emuPCE.Render
+namespace ePceCD.Render
 {
     public class VulkanRenderer : UserControl, IRenderer, IDisposable
     {

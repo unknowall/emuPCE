@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace emuPCE
+namespace ePceCD
 {
 
     public class CircularBuffer<T>

@@ -1,4 +1,4 @@
-namespace emuPCE
+namespace ePceCD
 {
 
     public class HuC6280

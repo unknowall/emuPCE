@@ -1,13 +1,14 @@
 using System;
 using System.IO;
 
-namespace emuPCE
+namespace ePceCD
 {
     public class BUS : MemoryBank, IDisposable
     {
         private MemoryBank[] m_BankList;
         private MemoryBank nullMemory;
-        private RamBank memory;
+        public RamBank[] memory;
+        public SaveMemoryBank BRAM;
 
         public HuC6280 CPU;
         public PPU PPU;
@@ -33,44 +34,37 @@ namespace emuPCE
         public string CDfile = "";
         public string GameID = "";
 
-        public IAudioHandler hostaudio;
-
         public BUS(IRenderHandler render, IAudioHandler audio)
         {
-            hostaudio = audio;
-
             nullMemory = new MemoryBank();
 
-            memory = new RamBank();
-            CDRom = new CDRom();
+            memory = new RamBank[33];
+            for (int i = 0; i < memory.Length; i++)
+                memory[i] = new RamBank();
+
+            CDRom = new CDRom(this);
 
             CPU = new HuC6280(this);
             PPU = new PPU(render);
             JoyPort = new Controller();
-            APU = new APU(CDRom);
+            APU = new APU(audio, CDRom);
 
             m_BankList = new MemoryBank[0x100];
 
             for (int i = 0; i < 0x100; i++)
                 m_BankList[i] = nullMemory;
 
-            m_BankList[0xF8] = memory;
-            m_BankList[0xF9] = memory;
-            m_BankList[0xFA] = memory;
-            m_BankList[0xFB] = memory;
+            m_BankList[0xF8] = memory[0];
+            m_BankList[0xF9] = memory[0];
+            m_BankList[0xFA] = memory[0];
+            m_BankList[0xFB] = memory[0];
 
             // CD-ROM BRAM
             m_BankList[0xF7] = nullMemory;
 
             // CD-ROM RAM
-            m_BankList[0x80] = CDRom.GetRam(0);
-            m_BankList[0x81] = CDRom.GetRam(1);
-            m_BankList[0x82] = CDRom.GetRam(2);
-            m_BankList[0x83] = CDRom.GetRam(3);
-            m_BankList[0x84] = CDRom.GetRam(4);
-            m_BankList[0x85] = CDRom.GetRam(5);
-            m_BankList[0x86] = CDRom.GetRam(6);
-            m_BankList[0x87] = CDRom.GetRam(7);
+            for (int i = 0; i < 8; i++)
+                m_BankList[0x80+i] = memory[i + 1];
 
             m_BankList[0xFF] = this;
 
@@ -245,7 +239,7 @@ namespace emuPCE
         {
             CDRom.LoadCue(file);
             CDfile = Path.GetFileNameWithoutExtension(file);
-            m_BankList[0xF7] = CDRom.GetSaveMemory();
+            m_BankList[0xF7] = BRAM;
         }
 
         public void LoadRom(string fileName, bool swap)
@@ -255,7 +249,7 @@ namespace emuPCE
             int i;
             RomName = Path.GetFileNameWithoutExtension(fileName);
 
-            Console.WriteLine("Loading rom {0}...", fileName);
+            //Console.WriteLine("Loading rom {0}...", fileName);
 
             file.Seek(file.Length % 0x400, SeekOrigin.Begin);
             for (i = 0; i < page.Length; i++)
@@ -275,7 +269,7 @@ namespace emuPCE
             if (page.Length <= 0x68)
             {
                 for (i = 0; i < 24; i++)
-                    m_BankList[i + 0x68] = CDRom.GetRam(i + 8);
+                    m_BankList[i + 0x68] = memory[i + 9];
             }
 
             //SF2 MAPPER

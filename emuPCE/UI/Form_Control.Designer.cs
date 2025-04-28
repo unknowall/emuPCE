@@ -1,4 +1,4 @@
-﻿namespace emuPCE.UI
+﻿namespace ePceCD.UI
 {
     partial class FrmInput
     {

@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 
-namespace emuPCE
+namespace ePceCD
 {
     public class APU //PSG , HuC6260
     {
@@ -29,8 +29,13 @@ namespace emuPCE
         private static float[] m_VolumeTable = new float[92];
         private CDRom m_CDRom;
 
-        static APU()
+        [NonSerialized]
+        private IAudioHandler host;
+
+        public APU(IAudioHandler audio, CDRom cdrom)
         {
+            host = audio;
+
             // 初始化噪声缓冲区
             int noiseRegister = 0x100;
             for (int i = 0; i < m_NoiseBuffer.Length; i++)
@@ -45,10 +50,7 @@ namespace emuPCE
             {
                 m_VolumeTable[i] = 1024.0f * (float)Math.Pow(10.0, (91 - i) * -0.075);
             }
-        }
 
-        public APU(CDRom cdrom)
-        {
             for (int i = 0; i < 8; i++)
             {
                 m_Channels[i] = new PSG_Channel();

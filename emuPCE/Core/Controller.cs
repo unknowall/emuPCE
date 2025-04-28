@@ -1,4 +1,4 @@
-namespace emuPCE
+namespace ePceCD
 {
     public enum PCEKEY
     {

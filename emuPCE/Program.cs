@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Windows.Forms;
 
-using emuPCE.UI;
+using ePceCD.UI;
 
-namespace emuPCE
+namespace ePceCD
 {
     internal static class Program
     {

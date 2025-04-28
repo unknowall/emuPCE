@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace emuPCE
+namespace ePceCD
 {
     public class MemoryBank
     {
@@ -95,7 +95,7 @@ namespace emuPCE
         }
     }
 
-    public class SaveMemoryBank : MemoryBank
+    public class SaveMemoryBank : MemoryBank, IDisposable
     {
         private byte[] m_Ram;
         private bool m_WriteProtect;
@@ -130,7 +130,7 @@ namespace emuPCE
             m_WriteProtect = false;
         }
 
-        ~SaveMemoryBank()
+        public void Dispose()
         {
             FileStream file = new FileStream(savefile, FileMode.OpenOrCreate, FileAccess.Write);
             file.Write(m_Ram, 0, m_Ram.Length);

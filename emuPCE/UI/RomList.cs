@@ -7,7 +7,7 @@ using System.IO;
 using System.Runtime;
 using System.Windows.Forms;
 
-namespace emuPCE.UI
+namespace ePceCD.UI
 {
     public class RomList : ListBox
     {
@@ -114,11 +114,11 @@ namespace emuPCE.UI
             contextMenuStrip.BackColor = MenuBackColor;
             var split = new ToolStripSeparator();
 
-            var item1 = new ToolStripMenuItem(emuPCE.Properties.Resources.RomList_RomList_修改设置, null, OnSetClick);
-            var item2 = new ToolStripMenuItem(emuPCE.Properties.Resources.RomList_RomList_编辑金手指, null, OnCheatClick);
+            var item1 = new ToolStripMenuItem(ePceCD.Properties.Resources.RomList_RomList_修改设置, null, OnSetClick);
+            var item2 = new ToolStripMenuItem(ePceCD.Properties.Resources.RomList_RomList_编辑金手指, null, OnCheatClick);
 
-            var item3 = new ToolStripMenuItem(emuPCE.Properties.Resources.RomList_RomList_设置图标, null, OnSetIconClick);
-            var item4 = new ToolStripMenuItem(emuPCE.Properties.Resources.RomList_RomList_删除, null, OnDeleteClick);
+            var item3 = new ToolStripMenuItem(ePceCD.Properties.Resources.RomList_RomList_设置图标, null, OnSetIconClick);
+            var item4 = new ToolStripMenuItem(ePceCD.Properties.Resources.RomList_RomList_删除, null, OnDeleteClick);
             contextMenuStrip.Items.AddRange(new ToolStripItem[]
             {
                 item1, item2, split,
@@ -237,7 +237,7 @@ namespace emuPCE.UI
                 if (_shouldSearchSubdirectories == null)
                 {
                     DialogResult result = MessageBox.Show(
-                        emuPCE.Properties.Resources.RomList_SearchDir_是否要搜索子目录,
+                        ePceCD.Properties.Resources.RomList_SearchDir_是否要搜索子目录,
                         "",
                         MessageBoxButtons.YesNo,
                         MessageBoxIcon.Question
@@ -584,9 +584,9 @@ namespace emuPCE.UI
             startX = bounds.Right - 340;
             startY = bounds.Bottom - 32;
             if (game.LastPlayed != "" && this.Width > 550)
-                DrawInfoBox(g, $"{emuPCE.Properties.Resources.RomList_DrawInfoBoxes_最后运行}: {game.LastPlayed}", startX - 29, startY, 9);
-            DrawInfoBox(g, $"{emuPCE.Properties.Resources.RomList_DrawInfoBoxes_即时存档}: {(game.HasSaveState ? "✓" : "✗")}", startX + 166, startY, 9);
-            DrawInfoBox(g, $"{emuPCE.Properties.Resources.RomList_DrawInfoBoxes_金手指}: {(game.HasCheats ? "✓" : "✗")}", startX + 260, startY, 9);
+                DrawInfoBox(g, $"{ePceCD.Properties.Resources.RomList_DrawInfoBoxes_最后运行}: {game.LastPlayed}", startX - 29, startY, 9);
+            DrawInfoBox(g, $"{ePceCD.Properties.Resources.RomList_DrawInfoBoxes_即时存档}: {(game.HasSaveState ? "✓" : "✗")}", startX + 166, startY, 9);
+            DrawInfoBox(g, $"{ePceCD.Properties.Resources.RomList_DrawInfoBoxes_金手指}: {(game.HasCheats ? "✓" : "✗")}", startX + 260, startY, 9);
         }
 
         private void DrawSelectionEffect(Graphics g, Rectangle bounds)

@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 
-using emuPCE.Render;
-using static emuPCE.Controller;
+using ePceCD.Render;
+using static ePceCD.Controller;
 using static SDL2.SDL;
 
-namespace emuPCE.UI
+namespace ePceCD.UI
 {
 
     public partial class FrmMain : Form, IAudioHandler, IRenderHandler
@@ -192,14 +192,14 @@ namespace emuPCE.UI
             }
             else
             {
-                UpdateStatus(1, $"F3+ F4- {emuPCE.Properties.Resources.FrmMain_Timer_Elapsed_存档槽} [{StateSlot}]");
-                UpdateStatus(2, $"F9[{(KeyFirst ? emuPCE.Properties.Resources.FrmMain_Timer_Elapsed_键盘优先 : emuPCE.Properties.Resources.FrmMain_Timer_Elapsed_手柄优先)}]");
+                UpdateStatus(1, $"F3+ F4- {ePceCD.Properties.Resources.FrmMain_Timer_Elapsed_存档槽} [{StateSlot}]");
+                UpdateStatus(2, $"F9[{(KeyFirst ? ePceCD.Properties.Resources.FrmMain_Timer_Elapsed_键盘优先 : ePceCD.Properties.Resources.FrmMain_Timer_Elapsed_手柄优先)}]");
                 UpdateStatus(3, "");
             }
 
             if (Core.Pauseed)
             {
-                UpdateStatus(1, emuPCE.Properties.Resources.FrmMain_Timer_Elapsed_暂停中, true);
+                UpdateStatus(1, ePceCD.Properties.Resources.FrmMain_Timer_Elapsed_暂停中, true);
             }
 
             this.Text = $"{version}  -  {gamename}";
@@ -502,6 +502,8 @@ namespace emuPCE.UI
             romList.FillByini();
             romList.BringToFront();
 
+            Render.DisposeCurrentRenderer();
+
             UpdateStatus(0, "", true);
         }
 
@@ -674,7 +676,7 @@ namespace emuPCE.UI
             if (Core != null && Core.Running)
             {
                 Core.SaveState(Slot.ToString());
-                UpdateStatus(1, $"{emuPCE.Properties.Resources.FrmMain_SaveState_saved} [{StateSlot}]", true);
+                UpdateStatus(1, $"{ePceCD.Properties.Resources.FrmMain_SaveState_saved} [{StateSlot}]", true);
                 StatusDelay = 3;
             }
         }
@@ -819,7 +821,7 @@ namespace emuPCE.UI
 
             if (Path.GetExtension(fn) == ".cue" && !File.Exists("./BIOS/" + currbios))
             {
-                UpdateStatus(0, $"{emuPCE.Properties.Resources.FrmMain_LoadRom_nobios} (Bios Not Found)", true);
+                UpdateStatus(0, $"{ePceCD.Properties.Resources.FrmMain_LoadRom_nobios} (Bios Not Found)", true);
                 timer.Enabled = false;
                 timer.Stop();
                 return;

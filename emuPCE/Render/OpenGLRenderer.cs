@@ -8,7 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using OpenGL;
 
-namespace emuPCE.Render
+namespace ePceCD.Render
 {
     class OpenGLRenderer : GlControl, IRenderer
     {

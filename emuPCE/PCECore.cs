@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace emuPCE
+namespace ePceCD
 {
     public class PCECore : IDisposable
     {

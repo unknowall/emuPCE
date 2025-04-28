@@ -3,7 +3,7 @@
     <TargetFramework>net8.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
     <UseWindowsForms>True</UseWindowsForms>
-    <StartupObject>emuPCE.Program</StartupObject>
+    <StartupObject>ePceCD.Program</StartupObject>
     <Platforms>AnyCPU</Platforms>
     <BaseIntermediateOutputPath></BaseIntermediateOutputPath>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
