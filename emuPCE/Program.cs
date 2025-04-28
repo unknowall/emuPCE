@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
+
 using static SDL2.SDL;
 
 namespace emuPCE
@@ -55,7 +56,7 @@ namespace emuPCE
             SDL_AudioSpec desired = new SDL_AudioSpec
             {
                 channels = 2,
-                format = AUDIO_S16SYS,
+                format = AUDIO_S16LSB,
                 freq = 44100,
                 samples = 1024,
                 callback = audioCallbackDelegate,

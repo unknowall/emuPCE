@@ -94,6 +94,7 @@ namespace emuPCE
                 m_Bank = address & 3;
         }
     }
+
     public class SaveMemoryBank : MemoryBank
     {
         private byte[] m_Ram;

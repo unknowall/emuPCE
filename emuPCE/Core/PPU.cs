@@ -22,7 +22,7 @@ namespace emuPCE
             public int m_X;
             public int m_Y;
             public int m_Pattern;
-            public bool m_CGPage;  // TODO
+            public bool m_CGPage;
 
             public bool m_VerticalFlip;
             public bool m_HorizontalFlip;
@@ -115,8 +115,8 @@ namespace emuPCE
                 int b = ((i) & 0x7) * 0x49 >> 1;
                 int r = ((i >> 3) & 0x7) * 0x49 >> 1;
                 int g = ((i >> 6) & 0x7) * 0x49 >> 1;
-                PALETTE[i] = (r << 16) | (g << 8) | b;
-                //PALETTE[i] = (0xFF << 24) | (r << 16) | (g << 8) | b; //ARGB888
+                //PALETTE[i] = (r << 16) | (g << 8) | b;
+                PALETTE[i] = (0xFF << 24) | (r << 16) | (g << 8) | b; //ARGB888
             }
 
             for (int i = 0; i < 0x40; i++)

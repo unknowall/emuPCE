@@ -31,7 +31,7 @@ namespace emuPCE
 
         static APU()
         {
-            // ³õÊ¼»¯ÔëÉù»º³åÇø
+            // åˆå§‹åŒ–å™ªå£°ç¼“å†²åŒº
             int noiseRegister = 0x100;
             for (int i = 0; i < m_NoiseBuffer.Length; i++)
             {
@@ -40,7 +40,7 @@ namespace emuPCE
                 noiseRegister = (noiseRegister >> 1) | ((bit0 ^ bit1) << 14);
                 m_NoiseBuffer[i] = (bit0 == 1) ? -12 : 12;
             }
-            // ³õÊ¼»¯ÒôÁ¿±í
+            // åˆå§‹åŒ–éŸ³é‡è¡¨
             for (int i = 0; i < 92; i++)
             {
                 m_VolumeTable[i] = 1024.0f * (float)Math.Pow(10.0, (91 - i) * -0.075);
@@ -67,7 +67,7 @@ namespace emuPCE
             if (stream == IntPtr.Zero || len == 0) return;
 
             short* buffer = (short*)stream.ToPointer();
-            int samples = len / 4; // Ã¿¸öÑù±¾°üº¬×óÓÒÉùµÀ
+            int samples = len / 4; // æ¯ä¸ªæ ·æœ¬åŒ…å«å·¦å³å£°é“
             for (int i = 0; i < samples; i++)
             {
                 float left = 0, right = 0;
@@ -77,12 +77,12 @@ namespace emuPCE
                     int lfoFreq = channel.m_Buffer[(int)channel.m_OutputIndex];
                     channel.m_OutputIndex += m_RealLFOFrequency;
                     channel.m_OutputIndex %= 32;
-                    // ·ûºÅÀ©Õ¹ÆµÂÊ
+                    // ç¬¦å·æ‰©å±•é¢‘ç‡
                     if ((lfoFreq & 0x10) != 0) lfoFreq |= -16;
                     channel = m_Channels[0];
                     channel.m_RealFrequency = 3584160.0f / m_SampleRate / (channel.m_Frequency + (lfoFreq << m_LFO_Shift) + 1);
                 }
-                // ±éÀúËùÓĞÍ¨µÀ²¢Éú³ÉÒôÆµÑù±¾
+                // éå†æ‰€æœ‰é€šé“å¹¶ç”ŸæˆéŸ³é¢‘æ ·æœ¬
                 foreach (var channel in m_Channels.Take(6))
                 {
                     if (!channel.m_Enabled || (m_LFO_Enabled && channel == m_Channels[1])) continue;
@@ -90,11 +90,11 @@ namespace emuPCE
                     left += channelSample * channel.m_LeftOutput;
                     right += channelSample * channel.m_RightOutput;
                 }
-                // Ìí¼ÓADPCMÒôÆµ»ìºÏ
+                // æ·»åŠ ADPCMéŸ³é¢‘æ··åˆ
                 short adpcmSample = m_CDRom._ADPCM.GetSample();
                 left += adpcmSample;
                 right += adpcmSample;
-                // Ğ´Èë×îÖÕµÄÒôÆµÑù±¾
+                // å†™å…¥æœ€ç»ˆçš„éŸ³é¢‘æ ·æœ¬
                 buffer[i * 2] = (short)(right + m_BaseLine);
                 buffer[i * 2 + 1] = (short)(left + m_BaseLine);
             }
