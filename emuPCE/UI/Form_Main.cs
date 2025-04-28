@@ -855,7 +855,7 @@ namespace emuPCE.UI
 
             Render.SelectRenderer(Rendermode, this);
 
-            //Core = new PSXCore(this, this, fn, mypath + "/BIOS/" + currbios, gameid);
+            Core = new PCECore(this, this, fn, mypath + "/BIOS/" + currbios, gameid);
 
             if (Core == null || Core.GameID == "")
             {

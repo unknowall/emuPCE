@@ -30,6 +30,10 @@
         {
             btnsave = new System.Windows.Forms.Button();
             groupBox1 = new System.Windows.Forms.GroupBox();
+            chkfade = new System.Windows.Forms.CheckBox();
+            chkadpcm = new System.Windows.Forms.CheckBox();
+            cbbios = new System.Windows.Forms.ComboBox();
+            label1 = new System.Windows.Forms.Label();
             cbscalemode = new System.Windows.Forms.ComboBox();
             label7 = new System.Windows.Forms.Label();
             tbframeidle = new System.Windows.Forms.TextBox();
@@ -43,10 +47,6 @@
             cbconsole = new System.Windows.Forms.CheckBox();
             btndel = new System.Windows.Forms.Button();
             label11 = new System.Windows.Forms.Label();
-            cbbios = new System.Windows.Forms.ComboBox();
-            label1 = new System.Windows.Forms.Label();
-            chkadpcm = new System.Windows.Forms.CheckBox();
-            chkfade = new System.Windows.Forms.CheckBox();
             groupBox1.SuspendLayout();
             SuspendLayout();
             // 
@@ -56,7 +56,7 @@
             btnsave.Name = "btnsave";
             btnsave.Size = new System.Drawing.Size(75, 27);
             btnsave.TabIndex = 0;
-            btnsave.Text = emuPCE.Properties.Resources.Form_Set_InitializeComponent_save;
+            btnsave.Text = Properties.Resources.Form_Set_InitializeComponent_save;
             btnsave.UseVisualStyleBackColor = true;
             btnsave.Click += btnsave_Click;
             // 
@@ -83,6 +83,44 @@
             groupBox1.TabIndex = 2;
             groupBox1.TabStop = false;
             // 
+            // chkfade
+            // 
+            chkfade.AutoSize = true;
+            chkfade.Location = new System.Drawing.Point(306, 117);
+            chkfade.Name = "chkfade";
+            chkfade.Size = new System.Drawing.Size(57, 21);
+            chkfade.TabIndex = 24;
+            chkfade.Text = "FADE";
+            chkfade.UseVisualStyleBackColor = true;
+            // 
+            // chkadpcm
+            // 
+            chkadpcm.AutoSize = true;
+            chkadpcm.Location = new System.Drawing.Point(229, 117);
+            chkadpcm.Name = "chkadpcm";
+            chkadpcm.Size = new System.Drawing.Size(71, 21);
+            chkadpcm.TabIndex = 23;
+            chkadpcm.Text = "ADPCM";
+            chkadpcm.UseVisualStyleBackColor = true;
+            // 
+            // cbbios
+            // 
+            cbbios.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cbbios.FormattingEnabled = true;
+            cbbios.Location = new System.Drawing.Point(114, 188);
+            cbbios.Name = "cbbios";
+            cbbios.Size = new System.Drawing.Size(283, 25);
+            cbbios.TabIndex = 22;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new System.Drawing.Point(12, 191);
+            label1.Name = "label1";
+            label1.Size = new System.Drawing.Size(58, 17);
+            label1.TabIndex = 21;
+            label1.Text = "CD BIOS";
+            // 
             // cbscalemode
             // 
             cbscalemode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -96,11 +134,11 @@
             // label7
             // 
             label7.AutoSize = true;
-            label7.Location = new System.Drawing.Point(16, 47);
+            label7.Location = new System.Drawing.Point(12, 50);
             label7.Name = "label7";
             label7.Size = new System.Drawing.Size(54, 17);
             label7.TabIndex = 19;
-            label7.Text = emuPCE.Properties.Resources.Form_Set_InitializeComponent_内部分辨率放大;
+            label7.Text = Properties.Resources.Form_Set_InitializeComponent_内部分辨率放大;
             // 
             // tbframeidle
             // 
@@ -117,28 +155,28 @@
             label8.Name = "label8";
             label8.Size = new System.Drawing.Size(72, 17);
             label8.TabIndex = 12;
-            label8.Text = emuPCE.Properties.Resources.Form_Set_InitializeComponent_limit;
+            label8.Text = Properties.Resources.Form_Set_InitializeComponent_limit;
             // 
             // tbaudiobuffer
             // 
-            tbaudiobuffer.Location = new System.Drawing.Point(116, 115);
+            tbaudiobuffer.Location = new System.Drawing.Point(114, 115);
             tbaudiobuffer.Name = "tbaudiobuffer";
-            tbaudiobuffer.Size = new System.Drawing.Size(96, 23);
+            tbaudiobuffer.Size = new System.Drawing.Size(98, 23);
             tbaudiobuffer.TabIndex = 10;
             tbaudiobuffer.KeyPress += edtxt_KeyPress;
             // 
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new System.Drawing.Point(12, 121);
+            label6.Location = new System.Drawing.Point(12, 118);
             label6.Name = "label6";
             label6.Size = new System.Drawing.Size(102, 17);
             label6.TabIndex = 9;
-            label6.Text = emuPCE.Properties.Resources.Form_Set_InitializeComponent_audio;
+            label6.Text = Properties.Resources.Form_Set_InitializeComponent_audio;
             // 
             // tbframeskip
             // 
-            tbframeskip.Location = new System.Drawing.Point(331, 83);
+            tbframeskip.Location = new System.Drawing.Point(331, 82);
             tbframeskip.Name = "tbframeskip";
             tbframeskip.Size = new System.Drawing.Size(66, 23);
             tbframeskip.TabIndex = 8;
@@ -147,11 +185,11 @@
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new System.Drawing.Point(229, 86);
+            label5.Location = new System.Drawing.Point(229, 85);
             label5.Name = "label5";
             label5.Size = new System.Drawing.Size(72, 17);
             label5.TabIndex = 7;
-            label5.Text = emuPCE.Properties.Resources.Form_Set_InitializeComponent_fsk;
+            label5.Text = Properties.Resources.Form_Set_InitializeComponent_fsk;
             // 
             // cbmsaa
             // 
@@ -179,7 +217,7 @@
             cbconsole.Name = "cbconsole";
             cbconsole.Size = new System.Drawing.Size(115, 21);
             cbconsole.TabIndex = 0;
-            cbconsole.Text = emuPCE.Properties.Resources.Form_Set_InitializeComponent_con;
+            cbconsole.Text = Properties.Resources.Form_Set_InitializeComponent_con;
             cbconsole.UseVisualStyleBackColor = true;
             // 
             // btndel
@@ -188,7 +226,7 @@
             btndel.Name = "btndel";
             btndel.Size = new System.Drawing.Size(101, 27);
             btndel.TabIndex = 5;
-            btndel.Text = emuPCE.Properties.Resources.Form_Set_InitializeComponent_gbs;
+            btndel.Text = Properties.Resources.Form_Set_InitializeComponent_gbs;
             btndel.UseVisualStyleBackColor = true;
             btndel.Click += btndel_Click;
             // 
@@ -199,45 +237,7 @@
             label11.Name = "label11";
             label11.Size = new System.Drawing.Size(211, 23);
             label11.TabIndex = 8;
-            label11.Text = emuPCE.Properties.Resources.Form_Set_InitializeComponent_不清楚作用的设置尽量不要修改;
-            // 
-            // cbbios
-            // 
-            cbbios.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            cbbios.FormattingEnabled = true;
-            cbbios.Location = new System.Drawing.Point(114, 188);
-            cbbios.Name = "cbbios";
-            cbbios.Size = new System.Drawing.Size(283, 25);
-            cbbios.TabIndex = 22;
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new System.Drawing.Point(12, 191);
-            label1.Name = "label1";
-            label1.Size = new System.Drawing.Size(58, 17);
-            label1.TabIndex = 21;
-            label1.Text = "CD BIOS";
-            // 
-            // chkadpcm
-            // 
-            chkadpcm.AutoSize = true;
-            chkadpcm.Location = new System.Drawing.Point(229, 117);
-            chkadpcm.Name = "chkadpcm";
-            chkadpcm.Size = new System.Drawing.Size(71, 21);
-            chkadpcm.TabIndex = 23;
-            chkadpcm.Text = "ADPCM";
-            chkadpcm.UseVisualStyleBackColor = true;
-            // 
-            // chkfade
-            // 
-            chkfade.AutoSize = true;
-            chkfade.Location = new System.Drawing.Point(306, 117);
-            chkfade.Name = "chkfade";
-            chkfade.Size = new System.Drawing.Size(57, 21);
-            chkfade.TabIndex = 24;
-            chkfade.Text = "FADE";
-            chkfade.UseVisualStyleBackColor = true;
+            label11.Text = Properties.Resources.Form_Set_InitializeComponent_不清楚作用的设置尽量不要修改;
             // 
             // Form_Set
             // 
@@ -252,7 +252,7 @@
             MaximizeBox = false;
             Name = "Form_Set";
             StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            Text = emuPCE.Properties.Resources.Form_Set_InitializeComponent_设置;
+            Text = Properties.Resources.Form_Set_InitializeComponent_设置;
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
             ResumeLayout(false);

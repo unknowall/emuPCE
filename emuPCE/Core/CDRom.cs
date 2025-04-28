@@ -185,7 +185,9 @@ namespace emuPCE
             currentTrack = new CDTrack { File = new FileStream(filePath, FileMode.Open, FileAccess.Read) };
             FileTrack = currentTrack;
             Console.WriteLine($"CDROM {filePath} BINARY LOADED");
-            BRAM = new SaveMemoryBank(Path.GetFileNameWithoutExtension(filePath));
+            string savefile = Path.GetFileNameWithoutExtension(filePath);
+
+            BRAM = new SaveMemoryBank("./Save/"+ savefile);
         }
 
         private void ParseTrackCommand(string[] parts)

@@ -1,41 +1,86 @@
+using System;
+using System.IO;
+
 namespace emuPCE
 {
-    class BUS : MemoryBank
+    public class BUS : MemoryBank, IDisposable
     {
-        // IRQ Values (IRQ1 and IRQ2 are outsourced)
+        private MemoryBank[] m_BankList;
+        private MemoryBank nullMemory;
+        private RamBank memory;
+
+        public HuC6280 CPU;
+        public PPU PPU;
+        public Controller JoyPort;
+        public APU APU;
+        public CDRom CDRom;
+
         private bool m_EnableTIMER;
         private bool m_EnableIRQ1;
         private bool m_EnableIRQ2;
         private bool m_FiredTIMER;
 
-        // Timer values
         private int m_TimerValue;
         private int m_TimerOverflow;
         private bool m_TimerCounting;
 
         private byte m_BusCap;
 
-        // Chip classes
-        public PPU m_PPU;
-        public Controller m_JoyPort;
-        public APU m_APU;
-        public CDRom m_CDRom;
-        public PCECore m_Host;
-
-        // Timing values
         private int m_OverFlowCycles;
         private int m_DeadClocks;
 
-        public BUS(PCECore host, CDRom cdrom)
+        public string RomName = "";
+        public string CDfile = "";
+        public string GameID = "";
+
+        public IAudioHandler hostaudio;
+
+        public BUS(IRenderHandler render, IAudioHandler audio)
         {
-            m_PPU = new PPU();
-            m_JoyPort = new Controller();
-            m_APU = new APU(cdrom);
-            m_CDRom = cdrom;
-            m_Host = host;
+            hostaudio = audio;
+
+            nullMemory = new MemoryBank();
+
+            memory = new RamBank();
+            CDRom = new CDRom();
+
+            CPU = new HuC6280(this);
+            PPU = new PPU(render);
+            JoyPort = new Controller();
+            APU = new APU(CDRom);
+
+            m_BankList = new MemoryBank[0x100];
+
+            for (int i = 0; i < 0x100; i++)
+                m_BankList[i] = nullMemory;
+
+            m_BankList[0xF8] = memory;
+            m_BankList[0xF9] = memory;
+            m_BankList[0xFA] = memory;
+            m_BankList[0xFB] = memory;
+
+            // CD-ROM BRAM
+            m_BankList[0xF7] = nullMemory;
+
+            // CD-ROM RAM
+            m_BankList[0x80] = CDRom.GetRam(0);
+            m_BankList[0x81] = CDRom.GetRam(1);
+            m_BankList[0x82] = CDRom.GetRam(2);
+            m_BankList[0x83] = CDRom.GetRam(3);
+            m_BankList[0x84] = CDRom.GetRam(4);
+            m_BankList[0x85] = CDRom.GetRam(5);
+            m_BankList[0x86] = CDRom.GetRam(6);
+            m_BankList[0x87] = CDRom.GetRam(7);
+
+            m_BankList[0xFF] = this;
 
             m_TimerOverflow = 0x10000 << 10;
             m_OverFlowCycles = 0;
+        }
+
+        public void Dispose()
+        {
+
         }
 
         public void Reset()
@@ -43,8 +88,10 @@ namespace emuPCE
             m_FiredTIMER = false;
             m_TimerCounting = false;
 
-            m_PPU.Reset();
+            PPU.Reset();
             m_DeadClocks = 0;
+
+            CPU.Reset();
         }
 
         public int tick()
@@ -66,14 +113,14 @@ namespace emuPCE
                 }
                 else
                 {
-                    m_PPU.Update();
+                    PPU.tick();
                     m_OverFlowCycles = 0;
                     m_TimerValue -= cycles;
                 }
             }
             else
             {
-                m_PPU.Update();
+                PPU.tick();
                 m_OverFlowCycles = 0;
             }
 
@@ -104,12 +151,12 @@ namespace emuPCE
 
         public bool IRQ1Waiting()
         {
-            return m_PPU.IRQPending() && m_EnableIRQ1;
+            return PPU.IRQPending() && m_EnableIRQ1;
         }
 
         public bool IRQ2Waiting()
         {
-            return m_CDRom.IRQWaiting() && m_EnableIRQ2;
+            return CDRom.IRQWaiting() && m_EnableIRQ2;
         }
 
         private void WriteTimer(int address, byte data)
@@ -150,7 +197,7 @@ namespace emuPCE
                     return (byte)(
                         (m_BusCap & 0xF8) |
                         // (false ? 0x01 : 0) |         CD-ROM UNIMPLEMENTED
-                        (m_PPU.IRQPending() ? 0x02 : 0) |
+                        (PPU.IRQPending() ? 0x02 : 0) |
                         (m_FiredTIMER ? 0x04 : 0));
                 default:
                     return m_BusCap;
@@ -173,28 +220,140 @@ namespace emuPCE
             }
         }
 
+        private void BitSwap(byte[] buffer)
+        {
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                buffer[i] = (byte)(
+                    ((buffer[i] & 0x80) >> 7) |
+                    ((buffer[i] & 0x40) >> 5) |
+                    ((buffer[i] & 0x20) >> 3) |
+                    ((buffer[i] & 0x10) >> 1) |
+                    ((buffer[i] & 0x08) << 1) |
+                    ((buffer[i] & 0x04) << 3) |
+                    ((buffer[i] & 0x02) << 5) |
+                    ((buffer[i] & 0x01) << 7));
+            }
+        }
+
+        public void LoseCycles(int cycles)
+        {
+            CPU.m_Clock -= cycles;
+        }
+
+        public void LoadCue(string file)
+        {
+            CDRom.LoadCue(file);
+            CDfile = Path.GetFileNameWithoutExtension(file);
+            m_BankList[0xF7] = CDRom.GetSaveMemory();
+        }
+
+        public void LoadRom(string fileName, bool swap)
+        {
+            FileStream file = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+            byte[][] page = new byte[(file.Length - file.Length % 0x400) / 0x2000][];
+            int i;
+            RomName = Path.GetFileNameWithoutExtension(fileName);
+
+            Console.WriteLine("Loading rom {0}...", fileName);
+
+            file.Seek(file.Length % 0x400, SeekOrigin.Begin);
+            for (i = 0; i < page.Length; i++)
+            {
+                page[i] = new byte[0x2000];
+                file.Read(page[i], 0, 0x2000);
+            }
+
+            // Bit swap the rom if it boots in a page other than MPR7
+            if (swap)//page[0][0x1FFF] < 0xE0)
+                for (i = 0; i < page.Length; i++)
+                    BitSwap(page[i]);
+
+            file.Close();
+
+            // Super System Card ram only active when there is enough space
+            if (page.Length <= 0x68)
+            {
+                for (i = 0; i < 24; i++)
+                    m_BankList[i + 0x68] = CDRom.GetRam(i + 8);
+            }
+
+            //SF2 MAPPER
+            if (page.Length > 128)
+            {
+                for (i = 0; i < 64; i++)
+                {
+                    byte[][] p = new byte[4][] {
+                        page[i],
+                        page[i],
+                        page[i],
+                        page[i]
+                        };
+
+                    m_BankList[i] = new ExtendedRomBank(p);
+                }
+
+                for (i = 0; i < 64; i++)
+                {
+                    byte[][] p = new byte[4][] {
+                        page[i+0x40],
+                        page[i+0x80],
+                        page[i+0xC0],
+                        page[i+0x100]
+                        };
+
+                    m_BankList[i + 0x40] = new ExtendedRomBank(p);
+                }
+            }
+            else if (page.Length == 48)
+            {
+                // 384kB games (requires some mirroring
+                int b = 0;
+
+                for (i = 0; i < 32; i++)
+                    m_BankList[b++] = new RomBank(page[i]);
+                for (i = 0; i < 48; i++)
+                    m_BankList[b++] = new RomBank(page[i]);
+                for (i = 0; i < 48; i++)
+                    m_BankList[b++] = new RomBank(page[i]);
+            }
+            else
+            {
+                for (i = 0; i < page.Length; i++)
+                    m_BankList[i] = new RomBank(page[i]);
+            }
+
+            for (i = 0; i < 0x100; i++)
+                GetBank((byte)i).SetMemoryPage(i);
+        }
+
+        public MemoryBank GetBank(byte bank)
+        {
+            return m_BankList[bank];
+        }
+
         public override byte ReadAt(int address)
         {
             if (address <= 0x03FF)      // VDC
             {
-                m_Host.LoseCycles(1);
-                return m_PPU.ReadVDC(address & 0x3);
+                LoseCycles(1);
+                return PPU.ReadVDC(address & 0x3);
             }
             else if (address <= 0x07FF) // VCE
             {
-                m_Host.LoseCycles(1);
-                return m_PPU.ReadVCE(address & 0x7);
+                LoseCycles(1);
+                return PPU.ReadVCE(address & 0x7);
             }
             else if (address <= 0x0BFF) // PSG
                 return m_BusCap;
             else if (address <= 0x0FFF) // TIMER
                 return m_BusCap = (byte)((m_TimerValue >> 10) & 0x7F);    // TIMER CODE
             else if (address <= 0x13FF) // I/O Port
-                return m_BusCap = m_JoyPort.Read();
+                return m_BusCap = JoyPort.Read();
             else if (address <= 0x17FF) // INTERRUPT CONTROL
                 return m_BusCap = ReadIRQCtrl(address & 3);
             else if (address <= 0x1BFF) // CDROM
-                return m_CDRom.ReadAt(address);
+                return CDRom.ReadAt(address);
 
             return 0xFF;
         }
@@ -203,24 +362,24 @@ namespace emuPCE
         {
             if (address <= 0x03FF)      // VDC
             {
-                m_Host.LoseCycles(1);
-                m_PPU.WriteVDC(address & 0x3, data);
+                LoseCycles(1);
+                PPU.WriteVDC(address & 0x3, data);
             }
             else if (address <= 0x07FF) // VCE
             {
-                m_Host.LoseCycles(1);
-                m_PPU.WriteVCE(address & 0x7, data);
+                LoseCycles(1);
+                PPU.WriteVCE(address & 0x7, data);
             }
             else if (address <= 0x0BFF) // PSG
-                m_APU.Write(address, m_BusCap = data);
+                APU.Write(address, m_BusCap = data);
             else if (address <= 0x0FFF) // TIMER
                 WriteTimer(address & 1, m_BusCap = data);
             else if (address <= 0x13FF) // I/O Port
-                m_JoyPort.Write(m_BusCap = data);
+                JoyPort.Write(m_BusCap = data);
             else if (address <= 0x17FF) // INTERRUPT CONTROL
                 WriteIRQCtrl(address & 3, m_BusCap = data);
             else if (address <= 0x1BFF) // CD-ROM ACCESS
-                m_CDRom.WriteAt(address, data);
+                CDRom.WriteAt(address, data);
         }
     }
 }

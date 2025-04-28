@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
+using Vulkan;
 
 namespace emuPCE
 {
@@ -12,11 +12,9 @@ namespace emuPCE
         MHZ_7 = 3
     }
 
-    public class PPU // HuC6270A
+    public class PPU : IDisposable // HuC6270A
     {
-        [DllImport("kernel32.dll")]
-        public static extern uint GetTickCount();
-
+        [Serializable]
         private struct SpriteAttribute
         {
             public int m_X;
@@ -40,13 +38,9 @@ namespace emuPCE
         private ushort[] m_VRAM;
         private static int[] PALETTE = new int[512];
         private DotClock m_VCE_DotClock;
-        public int FramesCalculated;
-        public int FramePerSec;
-        private int LastSecond = 0;
-        private double TargetTicks = 0;
         private IntPtr _screenBufPtr;
-        public delegate void EventFrameReady(IntPtr pixels);
-        public event EventFrameReady FrameReady;
+        private int[] _screenBuf;
+        public bool FrameReady;
 
         #region REGISTER Vars
 
@@ -102,13 +96,21 @@ namespace emuPCE
 
         #endregion
 
-        public PPU()
+        [NonSerialized]
+        public IRenderHandler host;
+
+        public PPU(IRenderHandler render)
         {
+            host = render;
+
             m_VRAM = new ushort[0x10000];
             m_SAT = new SpriteAttribute[0x40];
             m_VCE = new ushort[0x200];
             m_VCE_Index = 0;
+
+            _screenBuf = new int[1024 * 1024];
             _screenBufPtr = Marshal.AllocHGlobal(1024 * 1024 * sizeof(int));
+            
 
             for (int i = 0; i < 512; i++)
             {
@@ -132,7 +134,7 @@ namespace emuPCE
             m_VDC_BSY = false;
         }
 
-        ~PPU()
+        public void Dispose()
         {
             Marshal.FreeHGlobal(_screenBufPtr);
         }
@@ -150,7 +152,7 @@ namespace emuPCE
             m_WaitingIRQ = false;
         }
 
-        public unsafe void Update()
+        public unsafe void tick()
         {
             if (m_RenderLine + 1 > m_VDC_VDW)
             {
@@ -184,32 +186,10 @@ namespace emuPCE
             if (m_RenderLine >= 262)
             {
                 m_RenderLine = 0;
-                FrameReady?.Invoke(_screenBufPtr);
-                WaitTicks();
+                Marshal.Copy(_screenBufPtr, _screenBuf, 0, _screenBuf.Length);
+                FrameReady = true;
+                host.RenderFrame(_screenBuf, SCREEN_WIDTH, m_VDC_VDW);
             }
-        }
-
-        private void WaitTicks()
-        {
-            int s = System.DateTime.UtcNow.Second;
-            FramesCalculated++;
-            if ((s + 60 - LastSecond) % 60 >= 3)
-            {
-                //Console.WriteLine("{0} frames per second", FramesCalculated / 3);
-                FramePerSec = FramesCalculated / 3;
-                FramesCalculated = 0;
-                LastSecond = s;
-            }
-            uint ticks = GetTickCount();
-            if (ticks < TargetTicks)
-            {
-                System.Threading.Thread.Sleep((int)(TargetTicks - ticks));
-            }
-            else
-            {
-                TargetTicks = GetTickCount();
-            }
-            TargetTicks += 1000.0 / 60.0f;
         }
 
         private unsafe void HandleDMA()
@@ -277,7 +257,7 @@ namespace emuPCE
                 for (i = 0, BufferUsage = 0; i < 64 && BufferUsage < 17; i++)
                 {
                     int y = m_SAT[i].m_Y;
-                    if (m_RenderLine < y || m_RenderLine >= y + m_SAT[i].m_Height)  continue;
+                    if (m_RenderLine < y || m_RenderLine >= y + m_SAT[i].m_Height) continue;
                     BufferUsage += m_SAT[i].m_Width;
                     SprBuffer[BufferIndexes++] = m_SAT[i];
                 }
@@ -345,7 +325,7 @@ namespace emuPCE
 
             //colorindex to PALETTEcolor
             int* LineWritePtr = ScanLinePtr;
-            for (i = 0; i < SCREEN_WIDTH+1; i++, ScanLinePtr++)
+            for (i = 0; i < SCREEN_WIDTH + 1; i++, ScanLinePtr++)
             {
                 if ((*ScanLinePtr & 0x6000) == 0x6000) m_VDC_CR = m_VDC_Spr0Col;
                 int clr = PALETTE[m_VCE[*ScanLinePtr & 0x1FF]];

@@ -137,43 +137,6 @@ namespace emuPCE.UI
             ResumeLayout(false);
         }
 
-        public uint CalcCRC32(string filename)
-        {
-            uint[] crc32Table = new uint[256];
-            const uint polynomial = 0xEDB88320;
-
-            for (uint i = 0; i < 256; i++)
-            {
-                uint crc = i;
-                for (int j = 0; j < 8; j++)
-                {
-                    if ((crc & 1) == 1)
-                        crc = (crc >> 1) ^ polynomial;
-                    else
-                        crc >>= 1;
-                }
-                crc32Table[i] = crc;
-            }
-
-            uint crcValue = 0xFFFFFFFF;
-            using (FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
-            {
-                byte[] buffer = new byte[4096];
-                int bytesRead;
-
-                while ((bytesRead = fs.Read(buffer, 0, buffer.Length)) > 0)
-                {
-                    for (int i = 0; i < bytesRead; i++)
-                    {
-                        byte index = (byte)((crcValue ^ buffer[i]) & 0xFF);
-                        crcValue = (crcValue >> 8) ^ crc32Table[index];
-                    }
-                }
-            }
-
-            return crcValue ^ 0xFFFFFFFF;
-        }
-
         public void FillByini()
         {
             string[] ids = FrmMain.ini.GetSectionKeys("history");
@@ -213,11 +176,11 @@ namespace emuPCE.UI
             {
                 cdrom.LoadCue(f.FullName);
                 filesize = cdrom.tracks[0].File.Length;
-                id = $"{CalcCRC32(cdrom.tracks[0].File.Name):X8}";
+                id = $"{PCECore.CalcCRC32(cdrom.tracks[0].File.Name):X8}";
             }
             else if (Path.GetExtension(f.FullName) == ".pce")
             {
-                id = $"{CalcCRC32(f.FullName):X8}";
+                id = $"{PCECore.CalcCRC32(f.FullName):X8}";
                 filesize = new FileInfo(f.FullName).Length;
             }
             else

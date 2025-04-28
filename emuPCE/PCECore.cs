@@ -1,24 +1,20 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Security.Policy;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace emuPCE
 {
-    public class PCECore : HuC6280, IDisposable
+    public class PCECore : IDisposable
     {
-        private MemoryBank[] m_BankList;
-        private MemoryBank nullMemory;
-        private RamBank memory;
+        public double FRAME_LIMIT = 60.0;
 
-        private BUS m_BUS;
-        private CDRom m_CDRom;
+        private Task MainTask;
 
-        private PPU ppu;
-        private Controller JoyPort;
-        private APU apu;
-        private CDRom cdrom;
+        public BUS Bus;
 
         public struct AddrItem
         {
@@ -35,53 +31,64 @@ namespace emuPCE
         public List<CheatCode> cheatCodes = new List<CheatCode> { };
 
         public string RomName = "";
+        public string CdBios = "";
         public string CDfile = "";
         public string GameID = "";
-        public int FPS;
 
         public bool Pauseing, Pauseed, Running, Boost;
 
-        public delegate void EventFrameRender(IntPtr pixels);
-        public event EventFrameRender FrameRender;
-
-        public PCECore()
+        public PCECore(IRenderHandler render, IAudioHandler audio, string rom, string bios, string gameid)
         {
-            nullMemory = new MemoryBank();
-            memory = new RamBank();
-            m_CDRom = new CDRom();
-            m_BUS = new BUS(this, m_CDRom);
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine($"ePceCD Booting...");
+            Console.ResetColor();
 
-            ppu = m_BUS.m_PPU;
-            JoyPort = m_BUS.m_JoyPort;
-            apu = m_BUS.m_APU;
-            cdrom = m_BUS.m_CDRom;
+            RomName = rom;
+            CdBios = bios;
+            GameID = gameid;
 
-            ppu.FrameReady += FrameReady;
+            Bus = new BUS(render, audio);
 
-            m_BankList = new MemoryBank[0x100];
+            if (!File.Exists(RomName))
+            {
+                Console.WriteLine("Rom Not Found");
+                return;
+            }
 
-            for (int i = 0; i < 0x100; i++)
-                m_BankList[i] = nullMemory;
+            if (!File.Exists(CdBios))
+            {
+                Console.WriteLine("CD BIOS Not Found");
+                return;
+            }
 
-            m_BankList[0xF8] = memory;
-            m_BankList[0xF9] = memory;
-            m_BankList[0xFA] = memory;
-            m_BankList[0xFB] = memory;
+            if (Path.GetExtension(RomName) == ".pce")
+            {
+                Bus.LoadRom(RomName, false);
+                if (GameID == "")
+                {
+                    GameID = $"{PCECore.CalcCRC32(RomName):X8}";
+                }
 
-            // CD-ROM BRAM
-            m_BankList[0xF7] = nullMemory;
+            }
+            else if (Path.GetExtension(RomName) == ".cue")
+            {
+                Bus.LoadCue(RomName);
+                Bus.LoadRom(CdBios, false);
+                if (GameID == "")
+                {
+                    GameID = $"{PCECore.CalcCRC32(Bus.CDRom.tracks[0].File.Name):X8}";
+                }
+            }
+            else
+            {
+                return;
+            }
 
-            // CD-ROM RAM
-            m_BankList[0x80] = m_CDRom.GetRam(0);
-            m_BankList[0x81] = m_CDRom.GetRam(1);
-            m_BankList[0x82] = m_CDRom.GetRam(2);
-            m_BankList[0x83] = m_CDRom.GetRam(3);
-            m_BankList[0x84] = m_CDRom.GetRam(4);
-            m_BankList[0x85] = m_CDRom.GetRam(5);
-            m_BankList[0x86] = m_CDRom.GetRam(6);
-            m_BankList[0x87] = m_CDRom.GetRam(7);
+            Bus.Reset();
 
-            m_BankList[0xFF] = m_BUS;
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine($"ePceCD Running...");
+            Console.ResetColor();
         }
 
         public void Dispose()
@@ -91,22 +98,102 @@ namespace emuPCE
 
         public void Stop()
         {
-
+            if (Running)
+            {
+                Running = false;
+                Pauseing = false;
+                MainTask.Wait();
+            }
         }
 
         public void Pause()
         {
-
+            Pauseing = !Pauseing;
         }
 
         public void WaitPaused()
         {
-
+            Pauseing = true;
+            while (!Pauseed)
+            {
+                Thread.Sleep(20);
+                Pauseing = true;
+            }
         }
 
         public void Start()
         {
+            if (GameID == "")
+                return;
 
+            if (MainTask == null && !Running && Bus != null)
+            {
+                Running = true;
+                Pauseing = false;
+                MainTask = Task.Factory.StartNew(PCE_EXECUTE, TaskCreationOptions.LongRunning);
+            }
+        }
+
+        public void ApplyCheats()
+        {
+
+        }
+
+        private void PCE_EXECUTE()
+        {
+            double TargetFrameTime = 1000 / FRAME_LIMIT; // 60 FPS
+            var stopwatch = new Stopwatch();
+            double accumulatedError = 0;
+
+            while (Running)
+            {
+
+                stopwatch.Restart();
+
+                if (!Pauseing)
+                {
+                    Pauseed = false;
+
+                    while (!Bus.PPU.FrameReady)
+                    {
+                        Bus.CPU.m_Clock = Bus.tick();
+                        Bus.CPU.cycle();
+                    }
+
+                    Bus.PPU.FrameReady = false;
+                    ApplyCheats();
+                }
+                else
+                    Pauseed = true;
+
+                if (Boost)
+                    continue;
+
+                // 精确帧时间控制
+                double elapsed = stopwatch.Elapsed.TotalMilliseconds;
+                double targetDelay = TargetFrameTime - elapsed + accumulatedError;
+
+                if (targetDelay > 1)
+                {
+                    int sleepTime = (int)(targetDelay - 0.1); // 预留0.1ms给SpinWait
+                    Thread.Sleep(sleepTime);
+
+                    // 亚毫秒级补偿
+                    var spin = new SpinWait();
+                    while (stopwatch.Elapsed.TotalMilliseconds < TargetFrameTime)
+                    {
+                        spin.SpinOnce();
+                    }
+                }
+                else
+                {
+                    Thread.Yield();
+                }
+
+                // 累计时间误差用于补偿
+                accumulatedError += TargetFrameTime - stopwatch.Elapsed.TotalMilliseconds;
+                accumulatedError = Math.Max(-TargetFrameTime, Math.Min(accumulatedError, TargetFrameTime));
+            }
         }
 
         public void LoadState(string Fix = "")
@@ -145,175 +232,29 @@ namespace emuPCE
             Console.ResetColor();
         }
 
-        public void tick()
-        {
-            m_Clock = m_BUS.tick();
-            FPS = ppu.FramePerSec;
-            base.cycle();
-        }
-
-        public void FrameReady(IntPtr pixels)
-        {
-            FrameRender?.Invoke(pixels);
-        }
-
         public void GetAudioSamples(IntPtr stream, int len)
         {
-            apu.GetSamples(stream, len);
-        }
-
-        public void KeyState(PCEKEY key, short keyup)
-        {
-            JoyPort.KeyState(key, keyup);
+            Bus.APU.GetSamples(stream, len);
         }
 
         public void Button(PCEKEY key, bool isDown, int ConIdx = 0)
         {
-            JoyPort.KeyState(key, (short)(isDown ? 1 : 0));
+            Bus.JoyPort.KeyState(key, (short)(isDown ? 0 : 1));
+        }
+
+        public void KeyState(PCEKEY key, short keyup)
+        {
+            Bus.JoyPort.KeyState(key, keyup);
         }
 
         public void KeyDown(PCEKEY key)
         {
-            JoyPort.KeyState(key, 0);
+            Bus.JoyPort.KeyState(key, 0);
         }
 
         public void KeyUp(PCEKEY key)
         {
-            JoyPort.KeyState(key, 1);
-        }
-
-        protected override bool IRQ2Waiting()
-        {
-            return m_BUS.IRQ2Waiting();
-        }
-
-        protected override bool IRQ1Waiting()
-        {
-            return m_BUS.IRQ1Waiting();
-        }
-
-        protected override bool TimerWaiting()
-        {
-            return m_BUS.TimerWaiting();
-        }
-
-        private void BitSwap(byte[] buffer)
-        {
-            for (int i = 0; i < buffer.Length; i++)
-            {
-                buffer[i] = (byte)(
-                    ((buffer[i] & 0x80) >> 7) |
-                    ((buffer[i] & 0x40) >> 5) |
-                    ((buffer[i] & 0x20) >> 3) |
-                    ((buffer[i] & 0x10) >> 1) |
-                    ((buffer[i] & 0x08) << 1) |
-                    ((buffer[i] & 0x04) << 3) |
-                    ((buffer[i] & 0x02) << 5) |
-                    ((buffer[i] & 0x01) << 7));
-
-            }
-        }
-
-        public void LoseCycles(int cycles)
-        {
-            m_Clock -= cycles;
-        }
-
-        public void LoadCue(string file)
-        {
-            m_CDRom.LoadCue(file);
-            CDfile = Path.GetFileNameWithoutExtension(file);
-            m_BankList[0xF7] = m_CDRom.GetSaveMemory();
-        }
-
-        public void LoadRom(string fileName, bool swap)
-        {
-            FileStream file = new FileStream(fileName, FileMode.Open, FileAccess.Read);
-            byte[][] page = new byte[(file.Length - file.Length % 0x400) / 0x2000][];
-            int i;
-            RomName = Path.GetFileNameWithoutExtension(fileName);
-
-            Console.WriteLine("Loading rom {0}...", fileName);
-
-            file.Seek(file.Length % 0x400, SeekOrigin.Begin);
-            for (i = 0; i < page.Length; i++)
-            {
-                page[i] = new byte[0x2000];
-                file.Read(page[i], 0, 0x2000);
-            }
-
-            // Bit swap the rom if it boots in a page other than MPR7
-            if (swap)//page[0][0x1FFF] < 0xE0)
-                for (i = 0; i < page.Length; i++)
-                    BitSwap(page[i]);
-
-            file.Close();
-
-            // Super System Card ram only active when there is enough space
-            if (page.Length <= 0x68)
-            {
-                for (i = 0; i < 24; i++)
-                    m_BankList[i + 0x68] = m_CDRom.GetRam(i + 8);
-            }
-
-            //SF2 MAPPER
-            if (page.Length > 128)
-            {
-                for (i = 0; i < 64; i++)
-                {
-                    byte[][] p = new byte[4][] {
-                        page[i],
-                        page[i],
-                        page[i],
-                        page[i]
-                        };
-
-                    m_BankList[i] = new ExtendedRomBank(p);
-                }
-
-                for (i = 0; i < 64; i++)
-                {
-                    byte[][] p = new byte[4][] {
-                        page[i+0x40],
-                        page[i+0x80],
-                        page[i+0xC0],
-                        page[i+0x100]
-                        };
-
-                    m_BankList[i + 0x40] = new ExtendedRomBank(p);
-                }
-            }
-            else if (page.Length == 48)
-            {
-                // 384kB games (requires some mirroring
-                int b = 0;
-
-                for (i = 0; i < 32; i++)
-                    m_BankList[b++] = new RomBank(page[i]);
-                for (i = 0; i < 48; i++)
-                    m_BankList[b++] = new RomBank(page[i]);
-                for (i = 0; i < 48; i++)
-                    m_BankList[b++] = new RomBank(page[i]);
-            }
-            else
-            {
-                for (i = 0; i < page.Length; i++)
-                    m_BankList[i] = new RomBank(page[i]);
-            }
-
-            for (i = 0; i < 0x100; i++)
-                GetBank((byte)i).SetMemoryPage(i);
-        }
-
-        public override void Reset()
-        {
-            m_BUS.Reset();
-            base.Reset();
-        }
-
-        protected override MemoryBank GetBank(byte bank)
-        {
-            return m_BankList[bank];
+            Bus.JoyPort.KeyState(key, 1);
         }
 
         public static List<CheatCode> ParseTextToCheatCodeList(string fn, bool isfile = true)
@@ -373,6 +314,43 @@ namespace emuPCE
                 result.Add(new CheatCode { Name = currentSection, Item = currentItems, Active = isActive });
             }
             return result;
+        }
+
+        public static uint CalcCRC32(string filename)
+        {
+            uint[] crc32Table = new uint[256];
+            const uint polynomial = 0xEDB88320;
+
+            for (uint i = 0; i < 256; i++)
+            {
+                uint crc = i;
+                for (int j = 0; j < 8; j++)
+                {
+                    if ((crc & 1) == 1)
+                        crc = (crc >> 1) ^ polynomial;
+                    else
+                        crc >>= 1;
+                }
+                crc32Table[i] = crc;
+            }
+
+            uint crcValue = 0xFFFFFFFF;
+            using (FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read))
+            {
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+
+                while ((bytesRead = fs.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    for (int i = 0; i < bytesRead; i++)
+                    {
+                        byte index = (byte)((crcValue ^ buffer[i]) & 0xFF);
+                        crcValue = (crcValue >> 8) ^ crc32Table[index];
+                    }
+                }
+            }
+
+            return crcValue ^ 0xFFFFFFFF;
         }
     }
 }

@@ -57,11 +57,6 @@ namespace emuPCE
             m_CDRom = cdrom;
         }
 
-        ~APU()
-        {
-
-        }
-
         public unsafe void GetSamples(IntPtr stream, int len)
         {
             if (stream == IntPtr.Zero || len == 0) return;

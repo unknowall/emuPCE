@@ -329,14 +329,21 @@ namespace emuPCE
 
         // HuC6580 Specific Functions
         private bool m_HiSpeed;
-        protected int m_Clock;
+        public int m_Clock;
         private int m_AdvanceClock;
         private byte[] m_MPR = new byte[8];
         private MemoryBank[] m_Bank = new MemoryBank[8];
         private MemoryBank m_IOPage;
         private MemoryBank m_ZeroPage;
 
-        virtual public void Reset()
+        private BUS BUS;
+
+        public HuC6280(BUS bus)
+        {
+            BUS = bus;
+        }
+
+        public void Reset()
         {
             m_TransferMode = BlockTransferMode.NoTransferActive;
             m_HiSpeed = false;
@@ -366,19 +373,25 @@ namespace emuPCE
             m_PC = Read16((ushort)IRQVector.VECTOR_RESET);
         }
 
-        virtual protected bool IRQ2Waiting()
+        public bool IRQ2Waiting()
         {
-            return false;
+            return BUS.IRQ2Waiting();
         }
 
-        virtual protected bool IRQ1Waiting()
+        public bool IRQ1Waiting()
         {
-            return false;
+            return BUS.IRQ1Waiting();
         }
 
-        virtual protected bool TimerWaiting()
+        public bool TimerWaiting()
         {
-            return false;
+            return BUS.TimerWaiting();
+        }
+
+        // BUS based Reads / Writes
+        public MemoryBank GetBank(byte bank)
+        {
+            return BUS.GetBank(bank);
         }
 
         private void DoIRQ(IRQVector v)
@@ -485,15 +498,6 @@ namespace emuPCE
             m_ZFlag = (value & 0x02) != 0;
             m_CFlag = (value & 0x01) != 0;
         }
-
-        // BUS based Reads / Writes
-
-        protected virtual MemoryBank GetBank(byte bank)
-        {
-            return null;
-        }
-
-        // CPU based reads / writes
 
         private void Write8(ushort address, byte value)
         {
