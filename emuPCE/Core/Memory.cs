@@ -26,7 +26,7 @@ namespace emuPCE
 
     public class RamBank : MemoryBank
     {
-        private byte[] m_Ram;
+        public byte[] m_Ram;
 
         public RamBank()
         {

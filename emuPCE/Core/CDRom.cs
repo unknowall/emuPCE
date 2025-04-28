@@ -70,7 +70,7 @@ namespace emuPCE
         private bool bramLocked;
         public SaveMemoryBank BRAM;
         public RamBank[] RAMBanks { get; } = new RamBank[32];
-        private List<CDTrack> tracks = new List<CDTrack>();
+        public List<CDTrack> tracks = new List<CDTrack>();
 
         public ADPCM _ADPCM;
         public AUDIOFADE _AUDIOFADE = new AUDIOFADE();

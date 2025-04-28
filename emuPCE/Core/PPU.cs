@@ -139,16 +139,14 @@ namespace emuPCE
 
         public unsafe void Reset()
         {
-            int i;
-            for (i = 0; i < 0x8000; i++)
-            {
-                m_VRAM[i] = 0;
-            }
-            for (i = 0; i < 64; i++)
+            Array.Clear(m_VRAM);
+
+            for (var i = 0; i < 64; i++)
             {
                 m_SAT[i].m_X = 0;
                 m_SAT[i].m_Y = 0;
             }
+
             m_WaitingIRQ = false;
         }
 
@@ -548,7 +546,7 @@ namespace emuPCE
             switch (address)
             {
                 case 0:
-                    // 设置点时钟频率
+                    // 设置时钟频率
                     switch (data & 3)
                     {
                         case 0:

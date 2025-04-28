@@ -2,12 +2,12 @@ namespace emuPCE
 {
     public enum PCEKEY
     {
-        UP,
-        DOWN,
-        LEFT,
-        RIGHT,
-        SELECT,
-        START,
+        DPadUp,
+        DPadDown,
+        DPadLeft,
+        DPadRight,
+        Select,
+        Start,
         A,
         B
     }
@@ -41,16 +41,16 @@ namespace emuPCE
         {
             switch (key)
             {
-                case PCEKEY.UP:
+                case PCEKEY.DPadUp:
                     m_Up = (keyup == 0);
                     break;
-                case PCEKEY.DOWN:
+                case PCEKEY.DPadDown:
                     m_Down = (keyup == 0);
                     break;
-                case PCEKEY.RIGHT:
+                case PCEKEY.DPadRight:
                     m_Right = (keyup == 0);
                     break;
-                case PCEKEY.LEFT:
+                case PCEKEY.DPadLeft:
                     m_Left = (keyup == 0);
                     break;
                 case PCEKEY.B:
@@ -59,10 +59,10 @@ namespace emuPCE
                 case PCEKEY.A:
                     m_Button2 = (keyup == 0);
                     break;
-                case PCEKEY.START:
+                case PCEKEY.Start:
                     m_Run = (keyup == 0);
                     break;
-                case PCEKEY.SELECT:
+                case PCEKEY.Select:
                     m_Select = (keyup == 0);
                     break;
             }

@@ -20,13 +20,13 @@ namespace emuPCE
         public Controller m_JoyPort;
         public APU m_APU;
         public CDRom m_CDRom;
-        public PCESystem m_Host;
+        public PCECore m_Host;
 
         // Timing values
         private int m_OverFlowCycles;
         private int m_DeadClocks;
 
-        public BUS(PCESystem host, CDRom cdrom)
+        public BUS(PCECore host, CDRom cdrom)
         {
             m_PPU = new PPU();
             m_JoyPort = new Controller();

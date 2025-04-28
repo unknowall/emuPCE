@@ -1,20 +1,59 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0-windows</TargetFramework>
-    <OutputType>Exe</OutputType>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <PublishUrl>publish\</PublishUrl>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <UseWindowsForms>true</UseWindowsForms>
-    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <OutputType>WinExe</OutputType>
+    <UseWindowsForms>True</UseWindowsForms>
+    <StartupObject>emuPCE.Program</StartupObject>
+    <Platforms>AnyCPU</Platforms>
+    <BaseIntermediateOutputPath></BaseIntermediateOutputPath>
+    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ApplicationIcon>001.ico</ApplicationIcon>
   </PropertyGroup>
+  
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug'">
     <OutputPath>bin\Debug\</OutputPath>
   </PropertyGroup>
+  
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release'">
     <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <Compile Remove="obj\**" />
+    <Compile Remove="packages\**" />
+    <EmbeddedResource Remove="obj\**" />
+    <EmbeddedResource Remove="packages\**" />
+    <None Remove="obj\**" />
+    <None Remove="packages\**" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Content Include="001.ico" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Reference Include="OpenGL">
+      <HintPath>..\OpenGL.dll</HintPath>
+    </Reference>
+    <Reference Include="vk">
+      <HintPath>..\vk.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  
 </Project>
