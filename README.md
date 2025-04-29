@@ -50,7 +50,7 @@ _图2：使用ReShade_<br>
 - Keyboard mapping configuration is done through the File menu
 - Gamepads are plug-and-play compatible
 
-## Frequently Asked Questions ❓
+## FAQ ❓
 
 ### Q: Why can't I start a CD-ROM game?
 A: Please verify:
