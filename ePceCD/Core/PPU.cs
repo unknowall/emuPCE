@@ -287,24 +287,23 @@ namespace ePceCD
                     int* spx = ScanLinePtr;
                     spx += x;
                     if (x >= (m_VDC_HDR + 1) << 3) continue;
-                    //TODO: check for sprite overflow
-                    if (x > -16)
+                    if (x > -32)
                     {
                         switch (SprBuffer[i].m_Width)
                         {
                             case 1:
-                                DrawSPRTile(ref spx, SprBuffer[i].m_Palette, tile, SprBuffer[i].m_Priority, SprBuffer[i].m_HorizontalFlip);
+                                DrawSPRTile(ScanLinePtr, ref spx, SprBuffer[i].m_Palette, tile, SprBuffer[i].m_Priority, SprBuffer[i].m_HorizontalFlip);
                                 break;
                             case 2:
                                 if (SprBuffer[i].m_HorizontalFlip)
                                 {
-                                    DrawSPRTile(ref spx, SprBuffer[i].m_Palette, tile + 64, SprBuffer[i].m_Priority, true);
-                                    DrawSPRTile(ref spx, SprBuffer[i].m_Palette, tile, SprBuffer[i].m_Priority, true);
+                                    DrawSPRTile(ScanLinePtr, ref spx, SprBuffer[i].m_Palette, tile + 64, SprBuffer[i].m_Priority, true);
+                                    DrawSPRTile(ScanLinePtr, ref spx, SprBuffer[i].m_Palette, tile, SprBuffer[i].m_Priority, true);
                                 }
                                 else
                                 {
-                                    DrawSPRTile(ref spx, SprBuffer[i].m_Palette, tile, SprBuffer[i].m_Priority, false);
-                                    DrawSPRTile(ref spx, SprBuffer[i].m_Palette, tile + 64, SprBuffer[i].m_Priority, false);
+                                    DrawSPRTile(ScanLinePtr, ref spx, SprBuffer[i].m_Palette, tile, SprBuffer[i].m_Priority, false);
+                                    DrawSPRTile(ScanLinePtr, ref spx, SprBuffer[i].m_Palette, tile + 64, SprBuffer[i].m_Priority, false);
                                 }
                                 break;
                         }
@@ -329,17 +328,18 @@ namespace ePceCD
                 }
             }
 
-            //colorindex to PALETTEcolor
+            //colorindex to ARGB8888
+            int color = 0;
             int* LineWritePtr = ScanLinePtr;
             for (i = 0; i < SCREEN_WIDTH; i++, ScanLinePtr++)
             {
                 if ((*ScanLinePtr & 0x6000) == 0x6000) m_VDC_CR = m_VDC_Spr0Col;
-                int clr = PALETTE[m_VCE[*ScanLinePtr & 0x1FF]];
-                *(LineWritePtr++) = clr;
+                color = PALETTE[m_VCE[*ScanLinePtr & 0x1FF]];
+                *(LineWritePtr++) = color;
             }
         }
 
-        public unsafe void DrawSPRTile(ref int* px, int palette, int tile, bool priority, bool flip)
+        public unsafe void DrawSPRTile(int* ScanLinePtr, ref int* px, int palette, int tile, bool priority, bool flip)
         {
             int p1 = m_VRAM[tile];
             int p2 = m_VRAM[tile + 16] << 1;
@@ -354,6 +354,7 @@ namespace ePceCD
                 {
                     color = ((p1 >> x) & 1) | ((p2 >> x) & 2) | ((p3 >> x) & 4) | ((p4 >> x) & 8);
                     if (color == 0) continue;
+                    if (px < ScanLinePtr) continue;
                     *px = palette | color;
                 }
             else
@@ -361,6 +362,7 @@ namespace ePceCD
                 {
                     color = ((p1 >> x) & 1) | ((p2 >> x) & 2) | ((p3 >> x) & 4) | ((p4 >> x) & 8);
                     if (color == 0) continue;
+                    if (px < ScanLinePtr) continue;
                     *px = palette | color;
                 }
         }
