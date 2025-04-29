@@ -39,6 +39,7 @@ namespace ePceCD.UI
             if (FrmMain.Core != null)
             {
                 //HexBox.Dump = ConvertBytePointerToByteArray(FrmMain.Core.memory.ramPtr, 2048 * 1024);
+                HexBox.Dump = FrmMain.Core.Bus.memory[0].m_Ram;
             }
             else
             {
@@ -86,6 +87,7 @@ namespace ePceCD.UI
             if (!chkupd.Checked || FrmMain.Core == null)
                 return;
             //HexBox.Dump = ConvertBytePointerToByteArray(FrmMain.Core.PsxBus.ramPtr, 2048 * 1024);
+            HexBox.Dump = FrmMain.Core.Bus.memory[0].m_Ram;
         }
 
         private unsafe void btnupd_Click(object sender, EventArgs e)
@@ -93,6 +95,7 @@ namespace ePceCD.UI
             if (FrmMain.Core == null)
                 return;
             //HexBox.Dump = ConvertBytePointerToByteArray(FrmMain.Core.PsxBus.ramPtr, 2048 * 1024);
+            HexBox.Dump = FrmMain.Core.Bus.memory[0].m_Ram;
         }
 
         private unsafe void HexBox_Edited(object sender, HexBoxEditEventArgs e)
@@ -101,6 +104,7 @@ namespace ePceCD.UI
                 return;
 
             //FrmMain.Core.PsxBus.ramPtr[e.Offset] = (byte)e.NewValue;
+            FrmMain.Core.Bus.memory[0].m_Ram[e.Offset] = (byte)e.NewValue;
         }
 
         private void btngo_Click(object sender, EventArgs e)
@@ -123,16 +127,16 @@ namespace ePceCD.UI
 
         private void ml_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
         {
-            //switch (this.ml.Columns[e.ColumnIndex].Name)
-            //{
-            //    case "address":
-            //        e.Value = (PSX_BASE + SearchResults[e.RowIndex].Address).ToString("X8");
-            //        break;
+            switch (this.ml.Columns[e.ColumnIndex].Name)
+            {
+                case "address":
+                    e.Value = (PCE_BASE + SearchResults[e.RowIndex].Address).ToString("X8");
+                    break;
 
-            //    case "val":
-            //        e.Value = SearchResults[e.RowIndex].Value;
-            //        break;
-            //}
+                case "val":
+                    e.Value = SearchResults[e.RowIndex].Value;
+                    break;
+            }
         }
 
         private void ml_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
@@ -155,17 +159,15 @@ namespace ePceCD.UI
                 uint tmp = uint.Parse(SearchResults[e.RowIndex].Value.ToString());
                 uint adr = (uint)SearchResults[e.RowIndex].Address;
 
-                //adr = FrmMain.Core.PsxBus.GetMask(adr);
-                //if (tmp < 0xFF)
-                //{
-                //    FrmMain.Core.PsxBus.write(adr & 0x1F_FFFF, (byte)tmp, FrmMain.Core.PsxBus.ramPtr);
-                //} else if (tmp < 0xFFFF)
-                //{
-                //    FrmMain.Core.PsxBus.write(adr & 0x1F_FFFF, (ushort)tmp, FrmMain.Core.PsxBus.ramPtr);
-                //} else
-                //{
-                //    FrmMain.Core.PsxBus.write(adr & 0x1F_FFFF, tmp, FrmMain.Core.PsxBus.ramPtr);
-                //}
+                if (tmp < 0xFF)
+                {
+                    FrmMain.Core.Bus.memory[0].m_Ram[adr] = (byte)tmp;
+                }
+                else if (tmp < 0xFFFF)
+                {
+                    FrmMain.Core.Bus.memory[0].m_Ram[adr] = (byte)(tmp << 8);
+                    FrmMain.Core.Bus.memory[0].m_Ram[adr+1] = (byte)tmp;
+                }
             }
         }
 
@@ -182,7 +184,7 @@ namespace ePceCD.UI
             if (FrmMain.Core == null)
                 return;
 
-            //memsearch = new MemorySearch(ConvertBytePointerToByteArray(FrmMain.Core.PsxBus.ramPtr, 2048 * 1024));
+            memsearch = new MemorySearch(FrmMain.Core.Bus.memory[0].m_Ram);
 
             SearchResults.Clear();
 
@@ -194,10 +196,10 @@ namespace ePceCD.UI
             if (FrmMain.Core == null)
                 return;
 
-            //if (memsearch == null)
-            //    memsearch = new MemorySearch(ConvertBytePointerToByteArray(FrmMain.Core.PsxBus.ramPtr, 2048 * 1024));
-            //else
-            //    memsearch.UpdateData(ConvertBytePointerToByteArray(FrmMain.Core.PsxBus.ramPtr, 2048 * 1024));
+            if (memsearch == null)
+                memsearch = new MemorySearch(FrmMain.Core.Bus.memory[0].m_Ram);
+            else
+                memsearch.UpdateData(FrmMain.Core.Bus.memory[0].m_Ram);
 
             if (rbbyte.Checked)
             {
