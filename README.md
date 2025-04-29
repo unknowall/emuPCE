@@ -1,6 +1,111 @@
-## 支持CDROM的 PC Engine / TurboGrafx-16 模拟器
+## **ePceCD - A lightweight PC Engine CD / TurboGrafx-16 CD Emulator**  
 
 ![License](https://img.shields.io/badge/license-MIT-blue) ![GitHub Release](https://img.shields.io/github/v/release/unknowall/emuPCE?label=Release) ![Language](https://img.shields.io/github/languages/top/unknowall/emuPCE) ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
+
+<details>
+<summary><h3> 🌐 English Version</h3></summary>
+  
+A lightweight emulator for retro gaming enthusiasts, supporting CD-ROM games and classic ROM formats with modern graphical enhancements to revive the pixel art charm of your childhood memories!
+
+## Key Features 🎮
+- **Instant Save/Load**: Save and load game progress anytime.
+- **Multiple Renderer Support**: Dynamically switch between D2D/D3D/OpenGL/Vulkan renderers to adapt to different hardware configurations.
+- **ReShade Integration**: Post-processing effects (xBR/JINC upscaling) available for OpenGL/Vulkan/D3D pipelines.
+- **Resolution Scaling**: Enhanced visual experience through xBR/JINC algorithms.
+- **Memory Tools**: Provides memory editing and search capabilities.
+- **Cheat Code Support**: Unlock hidden content or adjust game difficulty via cheat codes.
+
+> <b>Note:</b> This English documentation became available from Beta version 0.0.2 onwards.
+
+**The project has been mirrored on Gitee and Gitcode. Domestic users are recommended to use these mirrors for faster downloads. The mirror repositories automatically synchronize updates to ensure content consistency.**
+
+_图3：ePceCD 主界面展示_<br>
+![epcecd1](https://github.com/user-attachments/assets/95e6e618-cde2-42c0-8db5-6d04de6f4385)
+
+_图2：使用ReShade_<br>
+![epcecd2](https://github.com/user-attachments/assets/d978b804-fdfa-49a9-a625-fc813acca6ba)
+
+### How to Use 🛠️
+
+#### 1. Setting Up CD BIOS 🔑
+> **Note**: BIOS files are required only for CD-ROM format games, not for standard ROMs.  
+> **Legal Disclaimer**: Due to copyright restrictions, the emulator does not include BIOS files. You must obtain them legally from your own console.
+
+- Example BIOS files: `Super CD-ROM System (Japan) (v3.0).pce` or `BIOS.pce`
+- Place the file in the emulator's `bios` folder:
+```
+/ePceCD
+├── bios/
+│   └── Super CD-ROM System (Japan) (v3.0).pce
+├── saves/
+└── ePceCD.exe
+```
+
+#### 2. Using ReShade 🎨
+- Available in OpenGL/Vulkan rendering modes
+- > D3D requires separate ReShade installation
+- Press the **Home key** to open the ReShade settings interface
+- Load preset shader files (multiple options available)
+
+#### 4. Control Settings ⌨️🎮
+- Keyboard mapping configuration is done through the File menu
+- Gamepads are plug-and-play compatible
+
+## Frequently Asked Questions ❓
+
+### Q: Why can't I start a CD-ROM game?
+A: Please verify:
+1. BIOS file is correctly configured
+2. Game image format is valid (e.g., `.bin/.cue` or `.img/.cue`)
+
+### Q: How do I get more ReShade shaders?
+A: Download shader files from [ReShade Official Website](https://reshade.me/) and place them in the `reshade/` folder:
+```
+/ePceCD
+├── reshade/
+│   └── Put shaders here
+├── saves/
+└── ePceCD.exe
+```
+
+### Q: How to improve visual quality?
+A: Press F11 multiple times. Combine with Home key to enable ReShade enhancements.
+
+### Q: How to fix audio sync issues?
+A: Try adjusting audio buffer size or switching audio output devices.
+
+### Q: Does it support all PC Engine/TurboGrafx-16 ROM formats?
+A: Yes, all ROM formats are supported. CD-ROM requires proper BIOS configuration.
+
+### Q: Is cross-platform support available?
+A: Currently Windows-only. Linux/macOS support planned via .NET MAUI or Avalonia frameworks.
+
+## Compilation Guide
+
+1. Project built with .NET 8.0 framework
+2. SDL definitions already included in code - place SDL2 DLL in output directory
+3. OpenGL: Install OpenGL.NET NuGet package (.NET 4.7 framework with compatibility issues)  
+   Or manually add OpenGL.dll for .NET 8.0 builds
+5. Vulkan: Use vk NuGet package or manual vk.dll dependency
+6. For versions below .NET 8.0, modify project file manually
+
+## How to Contribute 🤝
+We welcome code submissions, issue reports, and documentation improvements!
+- **Submit Issues**: Report bugs or suggest features at [Issues](https://github.com/unknowall/emuPCE/issues)
+- **Pull Requests**: Fork this project and submit PRs
+- **Localization**: Help translate UI text and documentation
+
+# Downloads 📥
+
+- **Lite Version (1.51 MB)**: Core functionality only, ideal for quick testing
+- **Full Version (8.02 MB)**: Includes all features including ReShade integration
+- **ControllerDB Database**: Optional download for enhanced controller recognition
+
+[Download Latest Version](https://github.com/unknowall/emuPCE/releases)
+
+</details>
+
+为怀旧游戏爱好者打造的轻量级 PCE 模拟器，支持 CD-ROM 游戏与经典 ROM 格式，搭配现代画质增强技术，唤醒童年记忆中的像素魅力！
 
 ## 主要功能 🎮
 - **即时存档/读档**: 随时保存和加载游戏进度。
