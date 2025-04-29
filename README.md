@@ -29,7 +29,7 @@ _图2：使用ReShade_<br>
 > **Note**: BIOS files are required only for CD-ROM format games, not for standard ROMs.  
 > **Legal Disclaimer**: Due to copyright restrictions, the emulator does not include BIOS files. You must obtain them legally from your own console.
 
-- Example BIOS files: `Super CD-ROM System (Japan) (v3.0).pce` or `BIOS.pce`
+- 1. Example BIOS files: `Super CD-ROM System (Japan) (v3.0).pce` or `BIOS.pce`
 - Place the file in the emulator's `bios` folder:
 ```
 /ePceCD
@@ -38,6 +38,7 @@ _图2：使用ReShade_<br>
 ├── saves/
 └── ePceCD.exe
 ```
+ - 2. Select the appropriate BIOS file in the Settings
 
 #### 2. Using ReShade 🎨
 - Available in OpenGL/Vulkan rendering modes
@@ -57,7 +58,8 @@ A: Please verify:
 2. Game image format is valid (e.g., `.bin/.cue` or `.img/.cue`)
 
 ### Q: How do I get more ReShade shaders?
-A: Download shader files from [ReShade Official Website](https://reshade.me/) and place them in the `reshade/` folder:
+A: 
+1. Download shader files from [ReShade Official Website](https://reshade.me/) and place them in the `reshade/` folder:
 ```
 /ePceCD
 ├── reshade/
@@ -65,6 +67,7 @@ A: Download shader files from [ReShade Official Website](https://reshade.me/) an
 ├── saves/
 └── ePceCD.exe
 ```
+
 
 ### Q: How to improve visual quality?
 A: Press F11 multiple times. Combine with Home key to enable ReShade enhancements.
@@ -128,13 +131,14 @@ _图2：使用ReShade_<br>
 #### 1. 设置 CD BIOS 🔑
 > **注意**: 只有CD-ROM格式的游戏需要BIOS，普通ROM无需BIOS。<br>
 > **注意**: 由于法律限制，模拟器不附带 BIOS 文件，请自行获取合法 BIOS。
-- 比如从你的主机中提取 BIOS 文件（如： Super CD-ROM System (Japan) (v3.0).pce 或 BIOS.pce）
+- 1. 比如从你的主机中提取 BIOS 文件（如： Super CD-ROM System (Japan) (v3.0).pce 或 BIOS.pce）
 - 将文件放入模拟器的 `bios` 文件夹中：
 - /ePceCD
 - ├── bios/
 - │ └── Super CD-ROM System (Japan) (v3.0).pce
 - ├── saves/
 - └── ePceCD.exe
+- 2. 在设置菜单中选择对应的 BIOS 文件
 
 #### 2. 使用 ReShade 🎨
 - ReShade 在 OpenGL、Vulkan 渲染模式下可用
