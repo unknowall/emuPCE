@@ -312,7 +312,27 @@ namespace ePceCD
 
         public void ApplyCheats()
         {
+            foreach (var code in cheatCodes)
+            {
+                if (!code.Active)
+                    continue;
 
+                foreach (var item in code.Item)
+                {
+                    switch (item.Width)
+                    {
+                        case 1:
+                            Bus.memory[0].m_Ram[item.Address] = (byte)item.Value;
+                            break;
+                        case 2:
+                            Bus.memory[0].m_Ram[item.Address + 1] = (byte)(item.Value >> 8);
+                            Bus.memory[0].m_Ram[item.Address] = (byte)(item.Value & 0xFF);
+                            break;
+                        case 4:
+                            break;
+                    }
+                }
+            }
         }
 
         public void LoadCheats()

@@ -165,8 +165,8 @@ namespace ePceCD.UI
                 }
                 else if (tmp < 0xFFFF)
                 {
-                    FrmMain.Core.Bus.memory[0].m_Ram[adr] = (byte)(tmp << 8);
-                    FrmMain.Core.Bus.memory[0].m_Ram[adr+1] = (byte)tmp;
+                    FrmMain.Core.Bus.memory[0].m_Ram[adr+1] = (byte)(tmp >> 8);
+                    FrmMain.Core.Bus.memory[0].m_Ram[adr] = (byte)(tmp & 0xFF);
                 }
             }
         }
