@@ -1,6 +1,6 @@
 ## **ePceCD - A lightweight PC Engine CD / TurboGrafx-16 CD Emulator**  
 
-![License](https://img.shields.io/badge/license-MIT-blue) ![GitHub Release](https://img.shields.io/github/v/release/unknowall/emuPCE?label=Release) ![Language](https://img.shields.io/github/languages/top/unknowall/emuPCE) ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-blue) ![GitHub Release](https://img.shields.io/github/v/release/unknowall/emuPCE?label=Release) ![Language](https://img.shields.io/github/languages/top/unknowall/emuPCE) ![Build Status](https://img.shields.io/badge/build-passing-brightgreen) [![Gitee Repo](https://img.shields.io/badge/Gitee-Mirror-FFB71B)](https://gitee.com/unknowall/emuPCE)
 
 <details>
 <summary><h3> 🌐 English Version</h3></summary>
