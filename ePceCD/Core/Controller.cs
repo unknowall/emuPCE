@@ -1,3 +1,5 @@
+using System;
+
 namespace ePceCD
 {
     public enum PCEKEY
@@ -12,6 +14,7 @@ namespace ePceCD
         B
     }
 
+    [Serializable]
     public class Controller
     {
         private bool m_SEL;

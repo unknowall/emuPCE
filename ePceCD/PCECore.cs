@@ -6,6 +6,11 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.IO.Compression;
+using OpenGL;
+using System.Drawing.Imaging;
+using System.Drawing;
+using System.Runtime.InteropServices;
 
 #pragma warning disable SYSLIB0011
 
@@ -40,8 +45,14 @@ namespace ePceCD
 
         public bool Pauseing, Pauseed, Running, Boost;
 
+        public IRenderHandler hostrender;
+        public IAudioHandler hostaudio;
+
         public PCECore(IRenderHandler render, IAudioHandler audio, string rom, string bios, string gameid)
         {
+            hostrender = render;
+            hostaudio = audio;
+
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine($"ePceCD Booting...");
             Console.ResetColor();
@@ -138,11 +149,6 @@ namespace ePceCD
             }
         }
 
-        public void ApplyCheats()
-        {
-
-        }
-
         private void PCE_EXECUTE()
         {
             double TargetFrameTime = 1000 / FRAME_LIMIT; // 60 FPS
@@ -208,12 +214,105 @@ namespace ePceCD
             string fn = "./SaveState/" + GameID + "_Save" + Fix + ".dat";
             if (!File.Exists(fn))
                 return;
+
+            Pauseing = true;
+            while (!Pauseed)
+            {
+                Thread.Sleep(20);
+                Pauseing = true;
+            }
+
+            Bus.Dispose();
+
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
+            Bus = StateFromFile<BUS>(fn);
+            Bus.DeSerializable(hostrender, hostaudio);
+
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine("State LOADED.");
+            Console.ResetColor();
+
+            Pauseing = false;
         }
 
-        public void SaveState(string Fix = "")
+        public void SaveState(string Fix = "", bool isBak = false)
         {
             if (!Running)
                 return;
+
+            Pauseing = true;
+            while (!Pauseed)
+            {
+                Thread.Sleep(20);
+                Pauseing = true;
+            }
+
+            string fn = "./SaveState/" + GameID + "_Save" + Fix + ".dat";
+
+            Bus.ReadySerializable();
+            StateToFile(Bus, fn);
+
+            if (!isBak)
+            {
+                fn = "./Icons/" + GameID + ".png";
+                SaveToPng(fn, Bus.PPU._screenBuf, PPU.SCREEN_WIDTH, Bus.PPU.m_VDC_VDW);
+            }
+
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine("State SAVEED.");
+            Console.ResetColor();
+
+            Pauseing = false;
+        }
+
+        public void SaveToPng(string filePath, int[] buffer, int Width, int Height)
+        {
+            Bitmap bitmap = new Bitmap(Width, Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+            BitmapData bmpData = bitmap.LockBits(
+                new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                ImageLockMode.WriteOnly,
+                bitmap.PixelFormat);
+
+            Marshal.Copy(buffer, 0, bmpData.Scan0, Width * Height);
+            bitmap.UnlockBits(bmpData);
+
+            bitmap.Save(filePath, ImageFormat.Png);
+        }
+
+        private BUS StateFromFile<BUS>(string filePath)
+        {
+            using (FileStream fileStream = new FileStream(filePath, FileMode.Open))
+            using (GZipStream gzipStream = new GZipStream(fileStream, CompressionMode.Decompress))
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                gzipStream.CopyTo(memoryStream);
+                memoryStream.Position = 0;
+                BinaryFormatter formatter = new BinaryFormatter();
+                return (BUS)formatter.Deserialize(memoryStream);
+            }
+        }
+
+        private void StateToFile<BUS>(BUS obj, string filePath)
+        {
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                BinaryFormatter formatter = new BinaryFormatter();
+                formatter.Serialize(memoryStream, obj);
+                using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
+                using (GZipStream gzipStream = new GZipStream(fileStream, CompressionMode.Compress))
+                {
+                    memoryStream.Position = 0;
+                    memoryStream.CopyTo(gzipStream);
+                }
+            }
+        }
+
+        public void ApplyCheats()
+        {
+
         }
 
         public void LoadCheats()

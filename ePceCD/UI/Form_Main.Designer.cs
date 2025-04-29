@@ -153,6 +153,7 @@
             UnLoadStripMenuItem.Name = "UnLoadStripMenuItem";
             UnLoadStripMenuItem.Size = new System.Drawing.Size(191, 22);
             UnLoadStripMenuItem.Text = Properties.Resources.UnLoad;
+            UnLoadStripMenuItem.Click += UnLoadStripMenuItem_Click;
             // 
             // toolStripMenuItem3
             // 

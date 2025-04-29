@@ -1,8 +1,11 @@
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
 
 namespace ePceCD
 {
+    [Serializable]
     public class BUS : MemoryBank, IDisposable
     {
         private MemoryBank[] m_BankList;
@@ -70,6 +73,34 @@ namespace ePceCD
 
             m_TimerOverflow = 0x10000 << 10;
             m_OverFlowCycles = 0;
+        }
+
+        public void ReadySerializable()
+        {
+
+        }
+
+        public void DeSerializable(IRenderHandler render, IAudioHandler audio)
+        {
+            CDRom.Bus = this;
+            CPU.BUS = this;
+
+            PPU.host = render;
+            PPU._screenBufPtr = Marshal.AllocHGlobal(1024 * 1024 * sizeof(int));
+
+            APU.host = audio;
+
+            if (CDfile != "")
+            {
+                foreach (CDRom.CDTrack track in CDRom.tracks)
+                {
+                    track.File = new FileStream(track.FileName, FileMode.Open, FileAccess.Read);
+                }
+
+                CDRom.FileTrack.File = new FileStream(CDRom.FileTrack.FileName, FileMode.Open, FileAccess.Read);
+
+                CDRom.currentTrack.File = new FileStream(CDRom.currentTrack.FileName, FileMode.Open, FileAccess.Read);
+            }
         }
 
         public void Dispose()

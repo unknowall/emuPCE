@@ -2,6 +2,7 @@ using System;
 
 namespace ePceCD
 {
+    [Serializable]
     public class ADPCM
     {
         private const uint RAM_SIZE = 0x10000; // 64KB ADPCM RAM
@@ -438,6 +439,7 @@ namespace ePceCD
         }
     }
 
+    [Serializable]
     public class AUDIOFADE
     {
         public byte fade;

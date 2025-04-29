@@ -3,6 +3,7 @@ using System;
 namespace ePceCD
 {
 
+    [Serializable]
     public class HuC6280
     {
         public enum InstructionOpcode : byte
@@ -339,7 +340,7 @@ namespace ePceCD
         private MemoryBank m_ZeroPage;
 
         [NonSerialized]
-        private BUS BUS;
+        public BUS BUS;
 
         public HuC6280(BUS bus)
         {

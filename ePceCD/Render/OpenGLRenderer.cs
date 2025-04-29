@@ -49,9 +49,9 @@ namespace ePceCD.Render
         public void Initialize(Control parentControl)
         {
             Parent = parentControl;
-            Dock = DockStyle.Fill;
             Enabled = false;
             parentControl.Controls.Add(this);
+            Dock = DockStyle.Fill;
         }
 
         public void SetParam(int Param)

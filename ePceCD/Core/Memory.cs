@@ -3,6 +3,7 @@ using System.IO;
 
 namespace ePceCD
 {
+    [Serializable]
     public class MemoryBank
     {
         protected int m_MemoryPage;
@@ -24,6 +25,7 @@ namespace ePceCD
         }
     }
 
+    [Serializable]
     public class RamBank : MemoryBank
     {
         public byte[] m_Ram;
@@ -44,6 +46,7 @@ namespace ePceCD
         }
     }
 
+    [Serializable]
     public class RomBank : MemoryBank
     {
         private byte[] m_Rom;
@@ -65,6 +68,7 @@ namespace ePceCD
         }
     }
 
+    [Serializable]
     class ExtendedRomBank : MemoryBank
     {
         private byte[][] m_Rom;
@@ -95,6 +99,7 @@ namespace ePceCD
         }
     }
 
+    [Serializable]
     public class SaveMemoryBank : MemoryBank, IDisposable
     {
         private byte[] m_Ram;

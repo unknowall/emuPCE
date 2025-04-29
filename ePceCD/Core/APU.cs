@@ -3,10 +3,13 @@ using System.Linq;
 
 namespace ePceCD
 {
+    [Serializable]
     public class APU //PSG , HuC6260
     {
         public int m_SampleRate = 44100;
         public short m_BaseLine = 0;
+
+        [Serializable]
         private class PSG_Channel
         {
             public int m_Frequency;
@@ -32,7 +35,7 @@ namespace ePceCD
         public bool MixADPCM, MixFADE;
 
         [NonSerialized]
-        private IAudioHandler host;
+        public IAudioHandler host;
 
         public APU(IAudioHandler audio, CDRom cdrom)
         {

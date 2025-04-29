@@ -501,6 +501,9 @@ namespace ePceCD.UI
 
             Render.DisposeCurrentRenderer();
 
+            if (audiodeviceid != 0)
+                SDL_PauseAudioDevice(audiodeviceid, 1);
+
             UpdateStatus(0, "", true);
         }
 
@@ -682,7 +685,7 @@ namespace ePceCD.UI
         {
             if (Core != null && Core.Running)
             {
-                Core.SaveState("~");
+                Core.SaveState("~", true);
                 Core.LoadState(Slot.ToString());
             }
         }

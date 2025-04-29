@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace ePceCD
 {
+    [Serializable]
     public class CDRom
     {
         // 常量定义
@@ -48,6 +49,7 @@ namespace ePceCD
         {
             public int Number;
             public TrackType Type;
+            public string FileName;
             [NonSerialized]
             public FileStream File;
             public long SectorStart;
@@ -62,7 +64,7 @@ namespace ePceCD
             public byte Control;  // 子通道Q控制字段
             public byte Adr;      // 子通道Q ADR类型
         }
-        private CDTrack currentTrack, FileTrack;
+        public CDTrack currentTrack, FileTrack;
 
         public enum CdRomIrqSource
         {
@@ -157,6 +159,7 @@ namespace ePceCD
                             return;
                     }
                 }
+                if (FileTrack.File == null) return;
                 FileTrack.File.Seek(AudioCS * SECTOR_SIZE, SeekOrigin.Begin);
                 FileTrack.File.Read(CDSBuffer, 0, SECTOR_SIZE);
                 for (int i = DATA_SECTOR_OFFSET; i < SECTOR_SIZE && samplesMixed < len; i += 2)
@@ -209,6 +212,7 @@ namespace ePceCD
             string filename = string.Join(" ", parts.Skip(1).TakeWhile(p => p != "BINARY")).Trim('"');
             string filePath = Path.Combine(baseDir, filename);
             currentTrack = new CDTrack { File = new FileStream(filePath, FileMode.Open, FileAccess.Read) };
+            currentTrack.FileName = filePath;
             FileTrack = currentTrack;
             Console.WriteLine($"CDROM {filePath} BINARY LOADED");
             string savefile = Path.GetFileNameWithoutExtension(filePath);
@@ -219,6 +223,7 @@ namespace ePceCD
         private void ParseTrackCommand(string[] parts)
         {
             var track = new CDTrack { File = currentTrack.File };
+            track.FileName = track.File.Name;
             track.Number = int.Parse(parts[1]);
 
             switch (parts[2])

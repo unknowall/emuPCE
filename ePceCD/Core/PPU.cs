@@ -11,6 +11,7 @@ namespace ePceCD
         MHZ_7 = 3
     }
 
+    [Serializable]
     public class PPU : IDisposable // HuC6270A
     {
         [Serializable]
@@ -37,8 +38,11 @@ namespace ePceCD
         private ushort[] m_VRAM;
         private static int[] PALETTE = new int[512];
         private DotClock m_VCE_DotClock;
-        private IntPtr _screenBufPtr;
-        private int[] _screenBuf;
+
+        [NonSerialized]
+        public IntPtr _screenBufPtr;
+
+        public int[] _screenBuf;
         public bool FrameReady;
 
         #region REGISTER Vars
@@ -66,8 +70,8 @@ namespace ePceCD
         private ushort m_VDC_LENR;
         private ushort m_VDC_VSAR;
 
-        private int m_VDC_HDR;
-        private int m_VDC_VDW;
+        public int m_VDC_HDR;
+        public int m_VDC_VDW;
 
         private int m_VDC_BAT_Width;
         private int m_VDC_BAT_Height;
