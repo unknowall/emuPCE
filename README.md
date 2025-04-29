@@ -98,8 +98,8 @@ We welcome code submissions, issue reports, and documentation improvements!
 
 # Downloads 📥
 
-- **Lite Version (1.51 MB)**: Core functionality only, ideal for quick testing
-- **Full Version (8.02 MB)**: Includes all features including ReShade integration
+- **Lite Version (1.41 MB)**: Core functionality only, ideal for quick testing
+- **Full Version (7.62 MB)**: Includes all features including ReShade integration
 - **ControllerDB Database**: Optional download for enhanced controller recognition
 
 [Download Latest Version](https://github.com/unknowall/emuPCE/releases)
@@ -193,8 +193,8 @@ A: 目前仅支持 Windows，未来计划通过 .NET MAUI 或 Avalonia 实现 Li
 
 # 下载 📥
 
-- **轻量版 (1.51 MB)**: 仅包含核心功能，适合快速体验。
-- **完整版 (8.02 MB)**: 包含所有功能（如 ReShade 集成）。
+- **轻量版 (1.41 MB)**: 仅包含核心功能，适合快速体验。
+- **完整版 (7.62 MB)**: 包含所有功能（如 ReShade 集成）。
 - **ControllerDB 数据库**: 可选下载，自动识别更多手柄外设。
 
 [点击这里下载最新版本](https://github.com/unknowall/emuPCE/releases)
