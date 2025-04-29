@@ -257,7 +257,7 @@ namespace ePceCD
             if (!isBak)
             {
                 fn = "./Icons/" + GameID + ".png";
-                SaveToPng(fn, Bus.PPU._screenBuf, PPU.SCREEN_WIDTH, Bus.PPU.m_VDC_VDW);
+                SaveToPng(fn, Bus.PPU._screenBuf, Bus.PPU.SCREEN_WIDTH, Bus.PPU.m_VDC_VDW);
             }
 
             Console.ForegroundColor = ConsoleColor.Blue;

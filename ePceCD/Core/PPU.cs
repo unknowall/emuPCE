@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using static System.Windows.Forms.AxHost;
 
 namespace ePceCD
 {
@@ -20,6 +21,7 @@ namespace ePceCD
             public int m_X;
             public int m_Y;
             public int m_Pattern;
+            //TODO: add CG support, ex: YS I & II
             public bool m_CGPage;
 
             public bool m_VerticalFlip;
@@ -33,10 +35,10 @@ namespace ePceCD
         }
         private SpriteAttribute[] m_SAT;
         private int m_RenderLine;
-        public const int CYCLES_PER_LINE = 1368;
-        public const int SCREEN_WIDTH = 256;
+        public int CYCLES_PER_LINE = 1368;
+        public int SCREEN_WIDTH = 256;
         private ushort[] m_VRAM;
-        private static int[] PALETTE = new int[512];
+        private int[] PALETTE = new int[512];
         private DotClock m_VCE_DotClock;
 
         [NonSerialized]
@@ -161,7 +163,7 @@ namespace ePceCD
             {
                 HandleDMA();
             }
-            else
+            else if (m_RenderLine >= 14 || m_RenderLine <= 256)
             {
                 DrawScanLine();
             }
@@ -285,6 +287,7 @@ namespace ePceCD
                     int* spx = ScanLinePtr;
                     spx += x;
                     if (x >= (m_VDC_HDR + 1) << 3) continue;
+                    //TODO: check for sprite overflow
                     if (x > -16)
                     {
                         switch (SprBuffer[i].m_Width)
@@ -318,7 +321,7 @@ namespace ePceCD
                 int YOverFlow = (RealBYR + m_RenderLine) & 0x7;
                 int* tileMap = ScanLinePtr;
                 tileMap -= m_VDC_BXR & 7;
-                for (i = -1; i <= m_VDC_HDR; i++)
+                for (i = 0; i < m_VDC_HDR + 1; i++)
                 {
                     int tile = m_VRAM[BATAddress | BATLine];
                     DrawBGTile(ref tileMap, (tile & 0xF000) >> 8, (tile & 0xFFF) << 4 | YOverFlow);
@@ -328,7 +331,7 @@ namespace ePceCD
 
             //colorindex to PALETTEcolor
             int* LineWritePtr = ScanLinePtr;
-            for (i = 0; i < SCREEN_WIDTH + 1; i++, ScanLinePtr++)
+            for (i = 0; i < SCREEN_WIDTH; i++, ScanLinePtr++)
             {
                 if ((*ScanLinePtr & 0x6000) == 0x6000) m_VDC_CR = m_VDC_Spr0Col;
                 int clr = PALETTE[m_VCE[*ScanLinePtr & 0x1FF]];
@@ -342,20 +345,21 @@ namespace ePceCD
             int p2 = m_VRAM[tile + 16] << 1;
             int p3 = m_VRAM[tile + 32] << 2;
             int p4 = m_VRAM[tile + 48] << 3;
+            int color = 0;
 
             if (priority) palette |= 0x1000;
 
             if (flip)
                 for (int x = 0; x < 16; x++, px++)
                 {
-                    int color = ((p1 >> x) & 1) | ((p2 >> x) & 2) | ((p3 >> x) & 4) | ((p4 >> x) & 8);
+                    color = ((p1 >> x) & 1) | ((p2 >> x) & 2) | ((p3 >> x) & 4) | ((p4 >> x) & 8);
                     if (color == 0) continue;
                     *px = palette | color;
                 }
             else
                 for (int x = 15; x >= 0; x--, px++)
                 {
-                    int color = ((p1 >> x) & 1) | ((p2 >> x) & 2) | ((p3 >> x) & 4) | ((p4 >> x) & 8);
+                    color = ((p1 >> x) & 1) | ((p2 >> x) & 2) | ((p3 >> x) & 4) | ((p4 >> x) & 8);
                     if (color == 0) continue;
                     *px = palette | color;
                 }
@@ -367,13 +371,13 @@ namespace ePceCD
             int p2 = p1 >> 7;
             int p3 = m_VRAM[tile + 8] << 2;
             int p4 = p3 >> 7;
+            int color = 0;
 
             for (int x = 7; x >= 0; x--, px++)
             {
                 if ((*px & 0x1000) != 0) continue;
-                int color = ((p1 >> x) & 1) | ((p2 >> x) & 2) | ((p3 >> x) & 4) | ((p4 >> x) & 8);
-                if (color == 0) continue;
-                *px = palette | color;
+                color = ((p1 >> x) & 1) | ((p2 >> x) & 2) | ((p3 >> x) & 4) | ((p4 >> x) & 8);
+                if (color != 0) *px = palette | color;
             }
         }
 
@@ -430,9 +434,15 @@ namespace ePceCD
                             m_VDC_BAT_Width = 128;
                             break;
                     }
+                    //VramAccessMode = data & 0x03;
+                    //SpriteAccessMode = (data >> 2) & 0x03;
                     m_VDC_BAT_Height = ((data & 0x40) == 0) ? 32 : 64;
+                    //CgMode = (data & 0x80) != 0;
                     break;
-                case 0x0B: m_VDC_HDR = data & 0x1F; break; //0x7F
+                case 0x0B:
+                    m_VDC_HDR = data & 0x7F;
+                    SCREEN_WIDTH = (m_VDC_HDR + 1) * 8;
+                    break;
                 case 0x0D: m_VDC_VDW = (m_VDC_VDW & 0x100) | data; break;
                 case 0x0F:
                     m_VDC_SATBDMA_IRQ = (data & 0x01) != 0;
@@ -529,6 +539,8 @@ namespace ePceCD
             switch (address)
             {
                 case 0:
+                    //ScanlineCount = (data & 0x04) ? 263 : 262;
+                    //Grayscale = (data & 0x80) != 0;
                     // 设置时钟频率
                     switch (data & 3)
                     {

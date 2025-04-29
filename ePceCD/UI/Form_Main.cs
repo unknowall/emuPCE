@@ -17,7 +17,7 @@ namespace ePceCD.UI
         [DllImport("kernel32.dll")]
         public static extern Boolean FreeConsole();
 
-        public static string version = "ePceCD Beta 0.0.2";
+        public static string version = "ePceCD Beta 0.0.3";
 
         private static string mypath = Application.StartupPath;
         public static IniFile ini = new IniFile(mypath + "ePceCD.ini");
