@@ -191,6 +191,7 @@ namespace ePceCD
             if (m_RenderLine >= 262)
             {
                 m_RenderLine = 0;
+                //ConvertColor();
                 Marshal.Copy(_screenBufPtr, _screenBuf, 0, _screenBuf.Length);
                 FrameReady = true;
                 host.RenderFrame(_screenBuf, SCREEN_WIDTH, m_VDC_VDW);
@@ -320,10 +321,10 @@ namespace ePceCD
                 int YOverFlow = (RealBYR + m_RenderLine) & 0x7;
                 int* tileMap = ScanLinePtr;
                 tileMap -= m_VDC_BXR & 7;
-                for (i = 0; i < m_VDC_HDR + 1; i++)
+                for (i = 0; i < m_VDC_HDR + 2; i++)
                 {
                     int tile = m_VRAM[BATAddress | BATLine];
-                    DrawBGTile(ref tileMap, (tile & 0xF000) >> 8, (tile & 0xFFF) << 4 | YOverFlow);
+                    DrawBGTile(ScanLinePtr, ref tileMap, (tile & 0xF000) >> 8, (tile & 0xFFF) << 4 | YOverFlow);
                     BATAddress = (BATAddress + 1) & BATMask;
                 }
             }
@@ -336,6 +337,20 @@ namespace ePceCD
                 if ((*ScanLinePtr & 0x6000) == 0x6000) m_VDC_CR = m_VDC_Spr0Col;
                 color = PALETTE[m_VCE[*ScanLinePtr & 0x1FF]];
                 *(LineWritePtr++) = color;
+            }
+        }
+
+        public unsafe void ConvertColor()
+        {
+            int color = 0;
+            for (int y = 0; y < m_VDC_VDW; y++)
+            {
+                int* LineWritePtr = (int*)_screenBufPtr.ToPointer() + SCREEN_WIDTH * y;
+                for (int i = 0; i < SCREEN_WIDTH; i++, LineWritePtr++)
+                {
+                    color = PALETTE[m_VCE[*LineWritePtr & 0x1FF]];
+                    *(LineWritePtr) = color;
+                }
             }
         }
 
@@ -352,22 +367,22 @@ namespace ePceCD
             if (flip)
                 for (int x = 0; x < 16; x++, px++)
                 {
+                    if (px < ScanLinePtr) continue;
                     color = ((p1 >> x) & 1) | ((p2 >> x) & 2) | ((p3 >> x) & 4) | ((p4 >> x) & 8);
                     if (color == 0) continue;
-                    if (px < ScanLinePtr) continue;
                     *px = palette | color;
                 }
             else
                 for (int x = 15; x >= 0; x--, px++)
                 {
+                    if (px < ScanLinePtr) continue;
                     color = ((p1 >> x) & 1) | ((p2 >> x) & 2) | ((p3 >> x) & 4) | ((p4 >> x) & 8);
                     if (color == 0) continue;
-                    if (px < ScanLinePtr) continue;
                     *px = palette | color;
                 }
         }
 
-        public unsafe void DrawBGTile(ref int* px, int palette, int tile)
+        public unsafe void DrawBGTile(int* ScanLinePtr, ref int* px, int palette, int tile)
         {
             int p1 = m_VRAM[tile];
             int p2 = p1 >> 7;
@@ -377,6 +392,7 @@ namespace ePceCD
 
             for (int x = 7; x >= 0; x--, px++)
             {
+                if (px < ScanLinePtr) continue;
                 if ((*px & 0x1000) != 0) continue;
                 color = ((p1 >> x) & 1) | ((p2 >> x) & 2) | ((p3 >> x) & 4) | ((p4 >> x) & 8);
                 if (color != 0) *px = palette | color;
