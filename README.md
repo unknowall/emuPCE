@@ -17,8 +17,6 @@ A lightweight emulator for retro gaming enthusiasts, supporting CD-ROM games and
 
 > <b>Note:</b> This English documentation became available from Beta version 0.0.2 onwards.
 
-**The project has been mirrored on Gitee and Gitcode. Domestic users are recommended to use these mirrors for faster downloads. The mirror repositories automatically synchronize updates to ensure content consistency.**
-
 _图3：ePceCD 主界面展示_<br>
 ![epcecd1](https://github.com/user-attachments/assets/95e6e618-cde2-42c0-8db5-6d04de6f4385)
 
