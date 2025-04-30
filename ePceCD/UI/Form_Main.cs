@@ -252,7 +252,7 @@ namespace ePceCD.UI
                 channels = 2,
                 format = AUDIO_S16LSB,
                 freq = 44100,
-                samples = 1024,
+                samples = 2048,
                 callback = audioCallbackDelegate,
                 userdata = IntPtr.Zero
 

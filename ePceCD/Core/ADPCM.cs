@@ -301,7 +301,7 @@ namespace ePceCD
         }
 
         // 生成音频样本
-        public short GetSample()
+        public int GetSample()
         {
             if (IsLengthLatched())
             {
@@ -414,7 +414,7 @@ namespace ePceCD
                 return value;
         }
 
-        public short DecodeSample(byte nibble)
+        public int DecodeSample(byte nibble)
         {
             nibble &= 0x0F; // 确保4位数据
             int sign = nibble & 0x08;
@@ -435,7 +435,7 @@ namespace ePceCD
             _currentStepIndex += _stepFactor[magnitude];
             _currentStepIndex = Clamp(_currentStepIndex, 0, _stepSize.Length - 1);
 
-            return (short)_currentPredictor;
+            return _currentPredictor;
         }
     }
 

@@ -35,6 +35,9 @@ namespace ePceCD
 
         public bool MixADPCM, MixFADE;
 
+        //private short[] m_AudioBuffer = new short[1052];
+        //private int m_BufferPos = 0;
+
         [NonSerialized]
         public IAudioHandler host;
 
@@ -46,13 +49,19 @@ namespace ePceCD
             MixFADE = true;
 
             // 初始化噪声缓冲区
-            int noiseRegister = 0x100;
+            //int noiseRegister = 0x100;
+            //for (int i = 0; i < m_NoiseBuffer.Length; i++)
+            //{
+            //    int bit0 = noiseRegister & 0x01;
+            //    int bit1 = (noiseRegister & 0x02) >> 1;
+            //    noiseRegister = (noiseRegister >> 1) | ((bit0 ^ bit1) << 14);
+            //    m_NoiseBuffer[i] = (bit0 == 1) ? -12 : 12;
+            //}
+            uint lfsr = 0x1FFF;
             for (int i = 0; i < m_NoiseBuffer.Length; i++)
             {
-                int bit0 = noiseRegister & 0x01;
-                int bit1 = (noiseRegister & 0x02) >> 1;
-                noiseRegister = (noiseRegister >> 1) | ((bit0 ^ bit1) << 14);
-                m_NoiseBuffer[i] = (bit0 == 1) ? -12 : 12;
+                m_NoiseBuffer[i] = (short)((lfsr & 1) * short.MaxValue);
+                lfsr = (uint)((lfsr >> 1) ^ (-(lfsr & 1) & 0x12000));
             }
             // 初始化音量表
             for (int i = 0; i < 92; i++)
@@ -76,15 +85,15 @@ namespace ePceCD
             return (short)sample;
         }
 
-        public unsafe void GetSamples(short[] buffer, int len)
+        public unsafe void GetSamples(short[] buffer, int len, int offset = 0)
         {
             //if (stream == IntPtr.Zero || len == 0) return;
 
             //int* buffer = (short*)stream.ToPointer();
-            int samples = len / 2; // 每个样本包含左右声道
-            for (int i = 0; i < samples; i++)
+            // 每个样本包含左右声道
+            for (int i = 0; i < len / 2; i++)
             {
-                short left = 0, right = 0;
+                int left = 0, right = 0;
                 if (m_LFO_Enabled && m_LFO_Active)
                 {
                     var channel = m_Channels[1];
@@ -102,19 +111,18 @@ namespace ePceCD
                 {
                     if (!channel.m_Enabled || (m_LFO_Enabled && channel == m_Channels[1])) continue;
                     int channelSample = GetChannelSample(channel);
-                    left += (short)(channelSample * channel.m_LeftOutput);
-                    right += (short)(channelSample * channel.m_RightOutput);
+                    left += (int)(channelSample * channel.m_LeftOutput);
+                    right += (int)(channelSample * channel.m_RightOutput);
                 }
-                buffer[i * 2] = (short)(right + m_BaseLine);
-                buffer[i * 2 + 1] = (short)(left + m_BaseLine);
-
                 // 添加ADPCM音频混合
-                short adpcmSample = m_CDRom._ADPCM.GetSample();
+                int adpcmSample = m_CDRom._ADPCM.GetSample();
                 if (MixADPCM)
                 {
-                    buffer[i * 2] += adpcmSample;
-                    buffer[i * 2 + 1] += adpcmSample;
+                    left += adpcmSample;
+                    right += adpcmSample;
                 }
+                buffer[offset + i * 2] = SoftClip(right + m_BaseLine);
+                buffer[offset + i * 2 + 1] = SoftClip(left + m_BaseLine);
             }
 
             //m_CDRom.MixCD((short*)stream.ToPointer(), len / 2);
@@ -141,6 +149,13 @@ namespace ePceCD
                 channel.m_OutputIndex %= 32;
             }
             return sample;
+        }
+
+        private bool AreAllBuffersFull()
+        {
+            return m_Channels.Take(6)
+                   .Where(c => c.m_Enabled && !c.m_Noise)
+                   .All(c => c.m_BufferIndex == 0);
         }
 
         public void Write(int address, byte data)
@@ -200,6 +215,21 @@ namespace ePceCD
             }
 
             UpdateChannelParameters();
+
+            //if (AreAllBuffersFull())
+            //{
+            //    int remainingSpace = 1052 - m_BufferPos;
+            //    int samplesToGenerate = Math.Min(remainingSpace, 64);
+
+            //    GetSamples(m_AudioBuffer, samplesToGenerate, m_BufferPos);
+            //    m_BufferPos += samplesToGenerate;
+
+            //    if (m_BufferPos >= 1052)
+            //    {
+            //        host.PlaySamples(m_AudioBuffer);
+            //        m_BufferPos = 0;
+            //    }
+            //}
         }
 
         private void UpdateChannelParameters()
