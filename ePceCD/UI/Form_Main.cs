@@ -41,7 +41,7 @@ namespace ePceCD.UI
 
         private static uint audiodeviceid;
         private SDL_AudioCallback audioCallbackDelegate;
-        private CircularBuffer<byte> SamplesBuffer;
+        private CircularBuffer<short> SamplesBuffer;
 
         private System.Windows.Forms.Timer timer;
 
@@ -252,7 +252,7 @@ namespace ePceCD.UI
                 channels = 2,
                 format = AUDIO_S16LSB,
                 freq = 44100,
-                samples = 2048,
+                samples = 1024,
                 callback = audioCallbackDelegate,
                 userdata = IntPtr.Zero
 
@@ -277,7 +277,7 @@ namespace ePceCD.UI
 
             int alignedSize = ((bufms * 176 + 2048 - 1) / 2048) * 2048;
 
-            SamplesBuffer = new CircularBuffer<byte>(alignedSize); // 300 ms = 52920
+            SamplesBuffer = new CircularBuffer<short>(alignedSize); // 300 ms = 52920
 
             if (audiodeviceid != 0)
                 SDL_PauseAudioDevice(audiodeviceid, 0);
@@ -913,17 +913,17 @@ namespace ePceCD.UI
 
         private unsafe void AudioCallbackImpl(IntPtr userdata, IntPtr stream, int len)
         {
-            if(Core != null && Core.Running)
-                Core.Bus.APU.GetSamples(stream, len);
+            short[] tempBuffer = new short[len];
 
-            //byte[] tempBuffer = new byte[len];
+            if (Core != null && Core.Running)
+                Core.Bus.APU.GetSamples(tempBuffer, len);
 
             //int bytesRead = SamplesBuffer.Read(tempBuffer, 0, len);
 
-            //fixed (byte* ptr = tempBuffer)
-            //{
-            //    Buffer.MemoryCopy(ptr, (void*)stream, len, bytesRead);
-            //}
+            fixed (short* ptr = tempBuffer)
+            {
+                Buffer.MemoryCopy(ptr, (void*)stream, len, len);
+            }
 
             //if (bytesRead < len)
             //{
@@ -931,7 +931,7 @@ namespace ePceCD.UI
             //}
         }
 
-        public void PlaySamples(byte[] samples)
+        public void PlaySamples(short[] samples)
         {
             SamplesBuffer.Write(samples);
         }

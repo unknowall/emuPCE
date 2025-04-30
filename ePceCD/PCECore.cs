@@ -354,11 +354,6 @@ namespace ePceCD
             Console.ResetColor();
         }
 
-        public void GetAudioSamples(IntPtr stream, int len)
-        {
-            Bus.APU.GetSamples(stream, len);
-        }
-
         public void Button(PCEKEY key, bool isDown, int ConIdx = 0)
         {
             Bus.JoyPort.KeyState(key, (short)(isDown ? 0 : 1));

@@ -2,7 +2,7 @@
 {
     public interface IAudioHandler
     {
-        void PlaySamples(byte[] samples);
+        void PlaySamples(short[] samples);
     }
 
     public interface IRenderHandler

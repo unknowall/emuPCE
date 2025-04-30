@@ -126,17 +126,15 @@ namespace ePceCD
             return (EnabledIrqs & ActiveIrqs) != 0;
         }
 
-        public int Clamp(int value, int min, int max)
+        private short SoftClip(int sample)
         {
-            if (value < min)
-                return min;
-            else if (value > max)
-                return max;
-            else
-                return value;
+            const int threshold = short.MaxValue - 1000;
+            if (sample > threshold) return (short)(threshold + (sample - threshold) * 0.5f);
+            if (sample < -threshold) return (short)(-threshold + (sample + threshold) * 0.5f);
+            return (short)sample;
         }
 
-        public unsafe void MixCD(short* outputBuffer, int len)
+        public void MixCD(short[] Buffer, int len)
         {
             if (!CdPlaying) return;
 
@@ -162,11 +160,16 @@ namespace ePceCD
                 if (FileTrack.File == null) return;
                 FileTrack.File.Seek(AudioCS * SECTOR_SIZE, SeekOrigin.Begin);
                 FileTrack.File.Read(CDSBuffer, 0, SECTOR_SIZE);
-                for (int i = DATA_SECTOR_OFFSET; i < SECTOR_SIZE && samplesMixed < len; i += 2)
+                for (int i = DATA_SECTOR_OFFSET; i < SECTOR_SIZE && samplesMixed < len; i += 4)
                 {
-                    short sample = (short)((CDSBuffer[i + 1] << 8) | CDSBuffer[i]);
-                    short mixedSample = (short)Clamp(outputBuffer[samplesMixed] + sample, short.MinValue, short.MaxValue);
-                    outputBuffer[samplesMixed++] = mixedSample;
+                    short sampleL = (short)((CDSBuffer[i + 1] << 8) | CDSBuffer[i]);
+                    short sampleR = (short)((CDSBuffer[i + 3] << 8) | CDSBuffer[i + 2]);
+
+                    int mixedL = (int)(Buffer[samplesMixed] * 0.8f + sampleL * 0.2f);
+                    int mixedR = (int)(Buffer[samplesMixed + 1] * 0.8f + sampleR * 0.2f);
+
+                    Buffer[samplesMixed++] = SoftClip(mixedL);
+                    Buffer[samplesMixed++] = SoftClip(mixedR);
                 }
                 AudioCS++;
             }

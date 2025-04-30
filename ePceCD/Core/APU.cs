@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 
 namespace ePceCD
@@ -67,15 +68,23 @@ namespace ePceCD
             m_CDRom = cdrom;
         }
 
-        public unsafe void GetSamples(IntPtr stream, int len)
+        private short SoftClip(int sample)
         {
-            if (stream == IntPtr.Zero || len == 0) return;
+            const int threshold = short.MaxValue - 1000;
+            if (sample > threshold) return (short)(threshold + (sample - threshold) * 0.5f);
+            if (sample < -threshold) return (short)(-threshold + (sample + threshold) * 0.5f);
+            return (short)sample;
+        }
 
-            short* buffer = (short*)stream.ToPointer();
-            int samples = len / 4; // 每个样本包含左右声道
+        public unsafe void GetSamples(short[] buffer, int len)
+        {
+            //if (stream == IntPtr.Zero || len == 0) return;
+
+            //int* buffer = (short*)stream.ToPointer();
+            int samples = len / 2; // 每个样本包含左右声道
             for (int i = 0; i < samples; i++)
             {
-                float left = 0, right = 0;
+                short left = 0, right = 0;
                 if (m_LFO_Enabled && m_LFO_Active)
                 {
                     var channel = m_Channels[1];
@@ -87,27 +96,29 @@ namespace ePceCD
                     channel = m_Channels[0];
                     channel.m_RealFrequency = 3584160.0f / m_SampleRate / (channel.m_Frequency + (lfoFreq << m_LFO_Shift) + 1);
                 }
+
                 // 遍历所有通道并生成音频样本
                 foreach (var channel in m_Channels.Take(6))
                 {
                     if (!channel.m_Enabled || (m_LFO_Enabled && channel == m_Channels[1])) continue;
                     int channelSample = GetChannelSample(channel);
-                    left += channelSample * channel.m_LeftOutput;
-                    right += channelSample * channel.m_RightOutput;
+                    left += (short)(channelSample * channel.m_LeftOutput);
+                    right += (short)(channelSample * channel.m_RightOutput);
                 }
+                buffer[i * 2] = (short)(right + m_BaseLine);
+                buffer[i * 2 + 1] = (short)(left + m_BaseLine);
+
                 // 添加ADPCM音频混合
                 short adpcmSample = m_CDRom._ADPCM.GetSample();
                 if (MixADPCM)
                 {
-                    left += adpcmSample;
-                    right += adpcmSample;
+                    buffer[i * 2] += adpcmSample;
+                    buffer[i * 2 + 1] += adpcmSample;
                 }
-                // 写入最终的音频样本
-                buffer[i * 2] = (short)(right + m_BaseLine);
-                buffer[i * 2 + 1] = (short)(left + m_BaseLine);
             }
 
-            m_CDRom.MixCD((short*)stream.ToPointer(), len / 2);
+            //m_CDRom.MixCD((short*)stream.ToPointer(), len / 2);
+            m_CDRom.MixCD(buffer, len / 2);
         }
 
         private int GetChannelSample(PSG_Channel channel)
