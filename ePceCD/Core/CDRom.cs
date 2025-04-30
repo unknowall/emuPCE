@@ -629,7 +629,7 @@ namespace ePceCD
 
             byte[] qData = new byte[10];
             int relLba = (int)(currentSector - track.SectorStart);
-            qData[0] = (byte)((CdPlaying) ? 0 : 3);
+            qData[0] = (byte)((Playing) ? 0 : 3);
             // 轨道信息
             qData[1] = (byte)(track.Adr | track.Control);
             qData[2] = FromBCD((byte)track.Number); // Index

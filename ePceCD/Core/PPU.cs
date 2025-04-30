@@ -460,6 +460,9 @@ namespace ePceCD
                     m_VDC_BAT_Height = ((data & 0x40) == 0) ? 32 : 64;
                     //CgMode = (data & 0x80) != 0;
                     break;
+                case 0x0A:
+                    //m_VDC_HSW = data & 0x1F;
+                    break;
                 case 0x0B:
                     m_VDC_HDR = data & 0x7F;
                     SCREEN_WIDTH = (m_VDC_HDR + 1) * 8;
@@ -511,6 +514,12 @@ namespace ePceCD
                 case 0x08:
                     m_VDC_BYR_Offset = (m_RenderLine + 1 >= m_VDC_VDW || !m_VDC_EnableBackground) ? 0 : (m_RenderLine - 1);
                     m_VDC_BYR = (m_VDC_BYR & 0xFF) | ((data << 8) & 0x0100);
+                    break;
+                case 0x0A:
+                    //m_VDC_HDS = data & 0x7F;
+                    break;
+                case 0x0B:
+                    //m_VDC_HDE = (data & 0x7F);
                     break;
                 case 0x0D: m_VDC_VDW = ((data << 8) & 0x100) | (m_VDC_VDW & 0xFF); break;
                 case 0x10: m_VDC_DSR = (ushort)((m_VDC_DSR & 0xFF) | (data << 8)); break;
