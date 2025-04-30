@@ -1,7 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using static System.Windows.Forms.AxHost;
 
 namespace ePceCD
 {
@@ -98,6 +97,8 @@ namespace ePceCD
         //private bool m_VCE_Blur;
         private ushort[] m_VCE;
         private int m_VCE_Index;
+        //private int ScanlineCount;
+        //private bool Grayscale;
 
         #endregion
 
@@ -330,11 +331,13 @@ namespace ePceCD
             }
 
             //colorindex to ARGB8888
+            //ushort grayscaleBit = (ushort)(Grayscale ? 0x200 : 0);
             int color = 0;
             int* LineWritePtr = ScanLinePtr;
             for (i = 0; i < SCREEN_WIDTH; i++, ScanLinePtr++)
             {
                 if ((*ScanLinePtr & 0x6000) == 0x6000) m_VDC_CR = m_VDC_Spr0Col;
+                //color = PALETTE[m_VCE[*ScanLinePtr & 0x1FF] | grayscaleBit];
                 color = PALETTE[m_VCE[*ScanLinePtr & 0x1FF]];
                 *(LineWritePtr++) = color;
             }
@@ -557,7 +560,7 @@ namespace ePceCD
             switch (address)
             {
                 case 0:
-                    //ScanlineCount = (data & 0x04) ? 263 : 262;
+                    //ScanlineCount = (data & 0x04) != 0 ? 263 : 262;
                     //Grayscale = (data & 0x80) != 0;
                     // 设置时钟频率
                     switch (data & 3)

@@ -1,16 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
+using System.IO.Compression;
+using System.Runtime.InteropServices;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.IO.Compression;
-using OpenGL;
-using System.Drawing.Imaging;
-using System.Drawing;
-using System.Runtime.InteropServices;
 
 #pragma warning disable SYSLIB0011
 

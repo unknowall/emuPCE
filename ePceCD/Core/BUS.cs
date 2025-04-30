@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
 
 namespace ePceCD
 {
@@ -221,7 +220,7 @@ namespace ePceCD
                 case 3: // Pendings
                     return (byte)(
                         (m_BusCap & 0xF8) |
-                        //(CDRom.IRQPending() ? 0x01 : 0) |
+                        (CDRom.IRQPending() ? 0x01 : 0) |
                         (PPU.IRQPending() ? 0x02 : 0) |
                         (m_FiredTIMER ? 0x04 : 0));
                 default:
