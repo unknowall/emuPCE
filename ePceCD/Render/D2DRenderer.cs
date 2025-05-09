@@ -1,6 +1,5 @@
 ﻿using DirectX.D2D1;
 using System;
-using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -180,7 +179,7 @@ namespace ePceCD.Render
 
                 renderTarget.Clear();
 
-                var dstrect = new D2D1RectF(0, 0, ClientSize.Width, ClientSize.Height-17);
+                var dstrect = new D2D1RectF(0, 0, ClientSize.Width, ClientSize.Height - 17);
                 var srcrect = new D2D1RectF(0, 0, width, height);
                 renderTarget.DrawBitmap(bitmap, dstrect, 1.0f, D2D1BitmapInterpolationMode.Linear, srcrect);
 
