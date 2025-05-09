@@ -30,11 +30,11 @@ namespace ePceCD.UI
         /// </summary>
         private void InitializeComponent()
         {
-            labver = new System.Windows.Forms.Label();
-            label2 = new System.Windows.Forms.Label();
-            textBox1 = new System.Windows.Forms.TextBox();
-            label3 = new System.Windows.Forms.Label();
-            linkLabel1 = new System.Windows.Forms.LinkLabel();
+            labver = new Label();
+            label2 = new Label();
+            textBox1 = new TextBox();
+            label3 = new Label();
+            linkLabel1 = new LinkLabel();
             SuspendLayout();
             // 
             // labver
@@ -43,7 +43,7 @@ namespace ePceCD.UI
             labver.Font = new System.Drawing.Font("Microsoft YaHei UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 134);
             labver.Location = new System.Drawing.Point(26, 21);
             labver.Name = "labver";
-            labver.Size = new System.Drawing.Size(150, 22);
+            labver.Size = new System.Drawing.Size(157, 22);
             labver.TabIndex = 0;
             labver.Text = "ePceCD Beta 0.0.2";
             // 
@@ -52,9 +52,9 @@ namespace ePceCD.UI
             label2.AutoSize = true;
             label2.Location = new System.Drawing.Point(26, 141);
             label2.Name = "label2";
-            label2.Size = new System.Drawing.Size(56, 17);
+            label2.Size = new System.Drawing.Size(70, 17);
             label2.TabIndex = 1;
-            label2.Text = ePceCD.Properties.Resources.FrmAbout_InitializeComponent_维护者;
+            label2.Text = "Maintainer";
             // 
             // textBox1
             // 
@@ -72,35 +72,40 @@ namespace ePceCD.UI
             label3.Name = "label3";
             label3.Size = new System.Drawing.Size(350, 56);
             label3.TabIndex = 3;
-            label3.Text = $"{ePceCD.Properties.Resources.FrmAbout_InitializeComponent_read}\r\n\r\n{ePceCD.Properties.Resources.FrmAbout_InitializeComponent_read2}\r\n";
             // 
             // linkLabel1
             // 
             linkLabel1.AutoSize = true;
             linkLabel1.Location = new System.Drawing.Point(35, 111);
             linkLabel1.Name = "linkLabel1";
-            linkLabel1.Size = new System.Drawing.Size(225, 17);
+            linkLabel1.Size = new System.Drawing.Size(230, 17);
             linkLabel1.TabIndex = 4;
             linkLabel1.TabStop = true;
             linkLabel1.Text = "https://github.com/unknowall/emuPCE";
+            linkLabel1.LinkClicked += Link_LinkClicked;
             // 
             // FrmAbout
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
-            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new System.Drawing.Size(318, 239);
             Controls.Add(linkLabel1);
             Controls.Add(label3);
             Controls.Add(textBox1);
             Controls.Add(label2);
             Controls.Add(labver);
-            FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
             Name = "FrmAbout";
-            StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            Text = ePceCD.Properties.Resources.FrmAbout_InitializeComponent_关于;
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "About";
             ResumeLayout(false);
             PerformLayout();
+        }
+
+        private void LinkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            throw new System.NotImplementedException();
         }
 
         #endregion
