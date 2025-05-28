@@ -29,8 +29,8 @@ namespace ePceCD
         // CD 播放
         private int AudioSS, AudioES, AudioCS;
         private bool CdPlaying;
-        private CDPLAYMODE CdPlayMode;
-        private enum CDPLAYMODE { LOOP, IRQ, STOP };
+        private CDLOOPMODE CdLoopMode;
+        private enum CDLOOPMODE { LOOP, IRQ, STOP };
         byte[] CDSBuffer = new byte[SECTOR_SIZE];
 
         // 光盘数据结构
@@ -143,15 +143,15 @@ namespace ePceCD
             {
                 if (AudioCS > AudioES)
                 {
-                    switch (CdPlayMode)
+                    switch (CdLoopMode)
                     {
-                        case CDPLAYMODE.STOP:
+                        case CDLOOPMODE.STOP:
                             CdPlaying = false;
                             return;
-                        case CDPLAYMODE.LOOP:
+                        case CDLOOPMODE.LOOP:
                             AudioCS = AudioSS;
                             break;
-                        case CDPLAYMODE.IRQ:
+                        case CDLOOPMODE.IRQ:
                             ActiveIrqs |= (byte)CdRomIrqSource.Stop;
                             CdPlaying = false;
                             return;
@@ -688,11 +688,11 @@ namespace ePceCD
             Console.WriteLine($"CD-ROM: AudioStartPos [{AudioSS}]");
             if (CMDBuffer[1] == 0)
             {
-                CdPlaying = true;
+                CdPlaying = false;
             }
             else
             {
-                CdPlaying = false;
+                CdPlaying = true;
             }
             SendStatus(0x00);
         }
@@ -705,9 +705,9 @@ namespace ePceCD
             switch (CMDBuffer[1])
             {
                 case 0: CdPlaying = false; break;
-                case 1: CdPlayMode = CDPLAYMODE.LOOP; break;
-                case 2: CdPlayMode = CDPLAYMODE.IRQ; break;
-                case 3: CdPlayMode = CDPLAYMODE.STOP; break;
+                case 1: CdLoopMode = CDLOOPMODE.LOOP; break;
+                case 2: CdLoopMode = CDLOOPMODE.IRQ; break;
+                case 3: CdLoopMode = CDLOOPMODE.STOP; break;
             }
             SendStatus(0x00);
         }

@@ -466,6 +466,7 @@ namespace ePceCD
                 case 0x0B:
                     m_VDC_HDR = data & 0x7F;
                     SCREEN_WIDTH = (m_VDC_HDR + 1) * 8;
+                    if (SCREEN_WIDTH == 336) SCREEN_WIDTH = 352;
                     break;
                 case 0x0D: m_VDC_VDW = (m_VDC_VDW & 0x100) | data; break;
                 case 0x0F:

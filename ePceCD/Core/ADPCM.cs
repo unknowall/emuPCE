@@ -40,7 +40,7 @@ namespace ePceCD
 
         private void ResetDecoderState()
         {
-            _currentPredictor = 0;
+            _currentPredictor = 2048;
             _currentStepIndex = 0;
             _currentAdpcmByte = 0;
             _isHighNibble = true;
@@ -324,8 +324,8 @@ namespace ePceCD
             }
             if (!_isPlaying)
             {
-                playingSample = 2048;
-                magnitude = 0;
+                _currentPredictor = 2048;
+                _currentStepIndex = 0;
                 _isPlaying = true;
             }
 
@@ -449,20 +449,17 @@ namespace ePceCD
         //    return _currentPredictor;
         //}
 
-        int magnitude;
-        int playingSample;
-
         private int DecodeAdpcmSample(byte nibble)
         {
             bool positive = (nibble & 8) == 0;
             int mag = nibble & 7;
             int m = _stepFactor[mag];
-            int adjustment = _stepSize[(magnitude * 8) + mag];
-            magnitude = AddClamped(magnitude, m, 0, 48);
+            int adjustment = _stepSize[(_currentStepIndex * 8) + mag];
+            _currentStepIndex = AddClamped(_currentStepIndex, m, 0, 48);
             if (positive == false) adjustment *= -1;
-            playingSample = AddClamped(playingSample, adjustment, 0, 4095);
+            _currentPredictor = AddClamped(_currentPredictor, adjustment, 0, 4095);
 
-            return playingSample;
+            return _currentPredictor;
         }
     }
 
