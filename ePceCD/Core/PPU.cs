@@ -458,7 +458,7 @@ namespace ePceCD
                     //VramAccessMode = data & 0x03;
                     //SpriteAccessMode = (data >> 2) & 0x03;
                     m_VDC_BAT_Height = ((data & 0x40) == 0) ? 32 : 64;
-                    //CgMode = (data & 0x80) != 0;
+                    //m_VDC_CgMode = (data & 0x80) != 0;
                     break;
                 case 0x0A:
                     //m_VDC_HSW = data & 0x1F;

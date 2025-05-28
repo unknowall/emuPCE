@@ -324,6 +324,8 @@ namespace ePceCD
             }
             if (!_isPlaying)
             {
+                playingSample = 2048;
+                magnitude = 0;
                 _isPlaying = true;
             }
 
@@ -346,7 +348,8 @@ namespace ePceCD
                 SetEndReached(true);
             }
 
-            return DecodeSample(nibble);
+            //return DecodeSample(nibble);
+            return DecodeAdpcmSample(nibble);
         }
 
         private int[] _stepSize =
@@ -404,38 +407,62 @@ namespace ePceCD
 
         private int[] _stepFactor = { -1, -1, -1, -1, 2, 4, 6, 8 };
 
-        public int Clamp(int value, int min, int max)
+        //public int Clamp(int value, int min, int max)
+        //{
+        //    if (value < min)
+        //        return min;
+        //    else if (value > max)
+        //        return max;
+        //    else
+        //        return value;
+        //}
+
+        public int AddClamped(int num1, int num2, int min, int max)
         {
-            if (value < min)
-                return min;
-            else if (value > max)
-                return max;
-            else
-                return value;
+            int result = num1 + num2;
+            if (result < min) return min;
+            if (result > max) return max;
+            return result;
         }
 
-        public int DecodeSample(byte nibble)
+        //public int DecodeSample(byte nibble)
+        //{
+        //    nibble &= 0x0F; // 确保4位数据
+        //    int sign = nibble & 0x08;
+        //    int magnitude = nibble & 0x07;
+
+        //    // 计算步长和delta
+        //    int step = _stepSize[_currentStepIndex];
+        //    int delta = (step * magnitude) >> 2; // 等价于除以4
+
+        //    if (sign != 0)
+        //        delta = -delta;
+
+        //    // 更新预测值
+        //    _currentPredictor += delta;
+        //    _currentPredictor = Clamp(_currentPredictor, -32768, 32767);
+
+        //    // 更新步长索引
+        //    _currentStepIndex += _stepFactor[magnitude];
+        //    _currentStepIndex = Clamp(_currentStepIndex, 0, _stepSize.Length - 1);
+
+        //    return _currentPredictor;
+        //}
+
+        int magnitude;
+        int playingSample;
+
+        private int DecodeAdpcmSample(byte nibble)
         {
-            nibble &= 0x0F; // 确保4位数据
-            int sign = nibble & 0x08;
-            int magnitude = nibble & 0x07;
+            bool positive = (nibble & 8) == 0;
+            int mag = nibble & 7;
+            int m = _stepFactor[mag];
+            int adjustment = _stepSize[(magnitude * 8) + mag];
+            magnitude = AddClamped(magnitude, m, 0, 48);
+            if (positive == false) adjustment *= -1;
+            playingSample = AddClamped(playingSample, adjustment, 0, 4095);
 
-            // 计算步长和delta
-            int step = _stepSize[_currentStepIndex];
-            int delta = (step * magnitude) >> 2; // 等价于除以4
-
-            if (sign != 0)
-                delta = -delta;
-
-            // 更新预测值
-            _currentPredictor += delta;
-            _currentPredictor = Clamp(_currentPredictor, -32768, 32767);
-
-            // 更新步长索引
-            _currentStepIndex += _stepFactor[magnitude];
-            _currentStepIndex = Clamp(_currentStepIndex, 0, _stepSize.Length - 1);
-
-            return _currentPredictor;
+            return playingSample;
         }
     }
 
